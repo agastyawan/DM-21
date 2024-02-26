@@ -22,20 +22,26 @@ CREATE TABLE IF NOT EXISTS customer(
   cust_id INT PRIMARY KEY,
   cust_reg_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   cust_last_name VARCHAR (100) NOT NULL,
-  cust_first_name VARCHAR (100),
+  cust_first_name VARCHAR (100) NOT NULL,
   cust_email VARCHAR (100) UNIQUE NOT NULL,
-  cust_password VARBINARY(100) NOT NULL, -- encrypted
-  cust_phone INT (15) UNIQUE,
-  cust_birth_date DATE,
-  cust_street_address VARCHAR (255),
-  cust_city VARCHAR (50),
+  cust_password md5(VARBINARY(64)) NOT NULL,
+  cust_phone INT (15) UNIQUE NOT NULL,
   cust_zipcode VARCHAR (10),
-  score INT, -- calculation on score
-  mem_id INT,
+  cust_city VARCHAR (50),
+  cust_street_address VARCHAR (255),
+  score INT,
+  mem_id ENUM ('1', '2', '3', '4') AS (
+    CASE
+      WHEN score > 1000 THEN '1'
+      WHEN score > 500 THEN '2'
+      WHEN score > 100 THEN '3'
+      ELSE '4'
+    END
+  )
+  cust_birth_date DATE,
   FOREIGN KEY (mem_id) REFERENCES membership(mem_id)
 ); 
 ```
-
 ```{sql, connection = my_db}
 -- membership
 
@@ -53,12 +59,12 @@ CREATE TABLE IF NOT EXISTS product(
   product_id INT PRIMARY KEY,
   product_name VARCHAR(100),
   brand_id INT,
+  prod_category_id INT,
   weight INT,
   selling_price INT,
-  category_id INT,
   product_desc VARCHAR(250),
   FOREIGN KEY (brand_id) REFERENCES brand(brand_id),
-  FOREIGN KEY (category_id) REFERENCES category(category_id)
+  FOREIGN KEY (prod_category_id) REFERENCES prod_category(prod_category_id)
 );
 ```
 
@@ -90,6 +96,7 @@ CREATE TABLE IF NOT EXISTS stock(
   FOREIGN KEY (warehouse_id) REFERENCES warehouse(warehouse_id)
 );
 ```
+
 
 ```{sql, connection = my_db}
 -- Brand
