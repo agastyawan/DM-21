@@ -172,10 +172,6 @@ CREATE TABLE IF NOT EXISTS cust_order (
 ); 
 ```
 
-
-
-
-
 ```{sql, connection = my_db}
 -- Order_details
 CREATE TABLE IF NOT EXISTS order_details (
