@@ -24,20 +24,13 @@ CREATE TABLE IF NOT EXISTS customer(
   cust_last_name VARCHAR (100) NOT NULL,
   cust_first_name VARCHAR (100) NOT NULL,
   cust_email VARCHAR (100) UNIQUE NOT NULL,
-  cust_password md5(VARBINARY(64)) NOT NULL,
+  cust_password VARCHAR(64) NOT NULL,
   cust_phone INT (15) UNIQUE NOT NULL,
   cust_zipcode VARCHAR (10),
   cust_city VARCHAR (50),
   cust_street_address VARCHAR (255),
   score INT,
-  mem_id ENUM ('1', '2', '3', '4') AS (
-    CASE
-      WHEN score > 1000 THEN '1'
-      WHEN score > 500 THEN '2'
-      WHEN score > 100 THEN '3'
-      ELSE '4'
-    END
-  )
+  mem_id INT,
   cust_birth_date DATE,
   FOREIGN KEY (mem_id) REFERENCES membership(mem_id)
 ); 
@@ -47,7 +40,7 @@ CREATE TABLE IF NOT EXISTS customer(
 
 CREATE TABLE IF NOT EXISTS membership(
   mem_id INT PRIMARY KEY,
-  mem_name VARCHAR(10) CHECK (mem_type IN ('PLATINUM', 'GOLD', 'SILVER', 'BRONZE'))
+  mem_name VARCHAR(10) CHECK (mem_name IN ('PLATINUM', 'GOLD', 'SILVER', 'BRONZE'))
 );
 ```
 
