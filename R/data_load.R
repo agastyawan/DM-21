@@ -2,8 +2,26 @@ library(readr)
 library(RSQLite)
 
 customer_data <- readr::read_csv("data_upload/customer.csv")
+ad_data <- readr::read_csv("data_upload/ad.csv")
+warehouse_data <- readr::read_csv("data_upload/warehouse.csv")
+promotion_data <- readr::read_csv("data_upload/promotion.csv")
+product_data <- readr::read_csv("data_upload/product.csv")
+order_data <- readr::read_csv("data_upload/order.csv")
+sell_data <- readr::read_csv("data_upload/sell.csv")
+supplier_data <- readr::read_csv("data_upload/supplier.csv")
+promote_data <- readr::read_csv("data_upload/promote.csv")
+stock_data <- readr::read_csv("data_upload/stock.csv")
+
 
 my_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e-commerce.db")
 
 RSQLite::dbWriteTable(my_connection,"customer",customer_data, append = TRUE, row.names = FALSE)
-
+RSQLite::dbWriteTable(my_connection,"ad",ad_data, append = TRUE, row.names = FALSE)
+RSQLite::dbWriteTable(my_connection,"warehouse",warehouse_data, append = TRUE, row.names = FALSE)
+RSQLite::dbWriteTable(con, "promotion", promotion_data, append = TRUE, row.names = FALSE)
+RSQLite::dbWriteTable(con, "product", product_data, append = TRUE, row.names = FALSE)
+RSQLite::dbWriteTable(con, "order", order_data, append = TRUE, row.names = FALSE)
+RSQLite::dbWriteTable(con, "sell", sell_data, append = TRUE, row.names = FALSE)
+RSQLite::dbWriteTable(con, "supplier", supplier_data, append = TRUE, row.names = FALSE)
+RSQLite::dbWriteTable(con, "promote", promote_data, append = TRUE, row.names = FALSE)
+RSQLite::dbWriteTable(con, "stock", stock_data, append = TRUE, row.names = FALSE)
