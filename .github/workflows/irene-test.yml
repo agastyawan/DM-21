@@ -28,9 +28,9 @@ jobs:
           Rscript -e 'install.packages(c("ggplot2","dplyr","readr","RSQLite"))'
       - name: Execute R script
         run: |
-          Rscript R/data_load.R
+          Rscript R/data_load1.R
       - name: Add files
         run: |
-          git config --global user.email "chayeon1228@gmail.com"
+          git config --global user.email "chayeon.park@warwick.ac.uk"
           git config --global user.name "irene"
           git add --all figures/
