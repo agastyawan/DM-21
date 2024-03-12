@@ -1,4 +1,4 @@
-"promotion_id","promotion_exp_date","promotion_amount"
+"promotion_id","promotion_exp_date","promotion_rate"
 "UK1158",2024-08-13,"30%"
 "UK1178",2024-08-08,"60%"
 "UK1013",2024-11-05,"20%"
