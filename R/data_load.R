@@ -13,13 +13,6 @@ supplier_data <- readr::read_csv("data_upload/supplier.csv", col_types=cols())
 #promote_data <- readr::read_csv("data_upload/promote.csv", col_types=cols()) 
 stock_data <- readr::read_csv("data_upload/stock.csv")
 
-customer_data <- customer_data[-c(1)]
-ad_data <- ad_data[-c(1)]
-product_data <- product_data[-c(1)]
-supplier_data <- supplier_data[-c(1)]
-
-
-
 my_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"e-commerce.db")
 
 RSQLite::dbWriteTable(my_connection,"customer",customer_data, append = TRUE, row.names = FALSE)
