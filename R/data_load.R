@@ -2,16 +2,23 @@ library(readr)
 library(RSQLite)
 library(dplyr)
 
-customer_data <- readr::read_csv("data_upload/customer.csv", col_types=cols()) %>% dplyr::select(-1)
-ad_data <- readr::read_csv("data_upload/ad.csv", col_types=cols()) %>% dplyr::select(-1)
+customer_data <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
+ad_data <- readr::read_csv("data_upload/ad.csv", col_types=cols()) 
 #warehouse_data <- readr::read_delim("data_upload/warehouse.csv", col_types=cols(), delim = ',')
 #promotion_data <- readr::read_csv("data_upload/promotion.csv", col_types=cols())
-product_data <- readr::read_csv("data_upload/product.csv", col_types=cols()) %>% dplyr::select(-1)
+product_data <- readr::read_csv("data_upload/product.csv", col_types=cols()) 
 order_data <- readr::read_csv("data_upload/order.csv")
 sell_data <- readr::read_csv("data_upload/sell.csv")
-supplier_data <- readr::read_csv("data_upload/supplier.csv", col_types=cols()) %>% dplyr::select(-1)
-#promote_data <- readr::read_csv("data_upload/promote.csv", col_types=cols()) %>% dplyr::select(-1)
+supplier_data <- readr::read_csv("data_upload/supplier.csv", col_types=cols())
+#promote_data <- readr::read_csv("data_upload/promote.csv", col_types=cols()) 
 stock_data <- readr::read_csv("data_upload/stock.csv")
+
+customer_data <- customer_data[,-1]
+ad_data <- ad_data[,-1]
+product_data <- product_data[,-1]
+supplier_data <- supplier_data[,-1]
+
+
 
 my_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"e-commerce.db")
 
