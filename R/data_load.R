@@ -4,7 +4,7 @@ library(dplyr)
 
 customer_data <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
 ad_data <- readr::read_csv("data_upload/ad.csv", col_types=cols()) 
-#warehouse_data <- readr::read_delim("data_upload/warehouse.csv", col_types=cols(), delim = ',')
+#warehouse_data <- readr::read_csv("data_upload/warehouse.csv", col_types=cols())
 #promotion_data <- readr::read_csv("data_upload/promotion.csv", col_types=cols())
 product_data <- readr::read_csv("data_upload/product.csv", col_types=cols()) 
 order_data <- readr::read_csv("data_upload/order.csv")
@@ -13,10 +13,10 @@ supplier_data <- readr::read_csv("data_upload/supplier.csv", col_types=cols())
 #promote_data <- readr::read_csv("data_upload/promote.csv", col_types=cols()) 
 stock_data <- readr::read_csv("data_upload/stock.csv")
 
-customer_data <- customer_data[,-1]
-ad_data <- ad_data[,-1]
-product_data <- product_data[,-1]
-supplier_data <- supplier_data[,-1]
+customer_data <- customer_data[-c(1)]
+ad_data <- ad_data[-c(1)]
+product_data <- product_data[-c(1)]
+supplier_data <- supplier_data[-c(1)]
 
 
 
