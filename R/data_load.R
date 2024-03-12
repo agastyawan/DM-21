@@ -1,5 +1,6 @@
 library(readr)
 library(RSQLite)
+library(dplyr)
 
 customer_data <- readr::read_csv("data_upload/customer.csv", col_types=cols()) %>% select(-1)
 ad_data <- readr::read_csv("data_upload/ad.csv", col_types=cols()) %>% select(-1)
