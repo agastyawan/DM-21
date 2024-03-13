@@ -32,3 +32,10 @@ jobs:
       - name: Execute R script 2
         run: |
           Rscript R/write.R
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "agastyawan"
+          git config --global user.email "agastyawan@gmail.com"
+          git add .
+          git commit -m "Write new data"
+          git push
