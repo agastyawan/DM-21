@@ -8,6 +8,7 @@ my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e-commerce.db")
 
 customer_db <- dbGetQuery(my_db, "SELECT * FROM customer")
 customer_push_data <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
+customer_db$cust_reg_date <- as.Date(customer_db$cust_reg_date, origin = "1970-01-01")
 new_customer_records <- anti_join(customer_push_data, customer_db)
 write.csv(new_customer_records, file = "new_record/new_customer_records.csv", row.names = FALSE)
 
