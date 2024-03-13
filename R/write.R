@@ -1,5 +1,5 @@
 library(dplyr)
 
-data = [1,2,3]
+data = "Hello"
 
 write.csv(data, file = "write.csv", row.names = TRUE)
