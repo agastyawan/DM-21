@@ -29,3 +29,6 @@ jobs:
       - name: Execute R script
         run: |
           Rscript R/data_load.R
+      - name: Execute R script 2
+        run: |
+          Rscript R/write.R
