@@ -20,7 +20,7 @@ ad_db$end_date <- as.Date(ad_db$end_date, origin = "1970-01-01")
 new_ad_records <- anti_join(ad_push_data, ad_db)
 write.csv(new_ad_records, file = "new_record/new_ad_records.csv", row.names = FALSE)
 
-order_db <- dbGetQuery(my_db, "SELECT * FROM order")
+order_db <- dbGetQuery(my_db, "SELECT * FROM 'order'")
 order_push_data <- readr::read_csv("data_upload/order.csv", col_types=cols()) 
 order_db$order_date <- as.Date(order_db$order_date, origin = "1970-01-01")
 new_order_records <- anti_join(order_push_data, order_db)
