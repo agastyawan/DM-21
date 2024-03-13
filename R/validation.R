@@ -15,11 +15,14 @@ write.csv(new_customer_records, file = "new_record/new_customer_records.csv", ro
 
 ad_db <- dbGetQuery(my_db, "SELECT * FROM ad")
 ad_push_data <- readr::read_csv("data_upload/ad.csv", col_types=cols()) 
+ad_db$start_date <- as.Date(ad_db$start_date, origin = "1970-01-01")
+ad_db$end_date <- as.Date(ad_db$end_date, origin = "1970-01-01")
 new_ad_records <- anti_join(ad_push_data, ad_db)
 write.csv(new_ad_records, file = "new_record/new_ad_records.csv", row.names = FALSE)
 
 order_db <- dbGetQuery(my_db, "SELECT * FROM order")
 order_push_data <- readr::read_csv("data_upload/order.csv", col_types=cols()) 
+order_db$order_date <- as.Date(order_db$order_date, origin = "1970-01-01")
 new_order_records <- anti_join(order_push_data, order_db)
 write.csv(new_order_records, file = "new_record/new_order_records.csv", row.names = FALSE)
 
@@ -35,6 +38,7 @@ write.csv(new_promote_records, file = "new_record/new_promote_records.csv", row.
 
 promotion_db <- dbGetQuery(my_db, "SELECT * FROM promotion")
 promotion_push_data <- readr::read_csv("data_upload/promotion.csv", col_types=cols()) 
+promotion_db$promotion_exp_date <- as.Date(promotion_db$promotion_exp_date, origin = "1970-01-01")
 new_promotion_records <- anti_join(promotion_push_data, promotion_db)
 write.csv(new_promotion_records, file = "new_record/new_promotion_records.csv", row.names = FALSE)
 
