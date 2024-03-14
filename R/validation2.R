@@ -70,7 +70,7 @@ tempdata <- customer
 merged_data <- merge(customer, customer[, c("cust_id", "cust_reg_date")], 
                      by.x = "cust_referral", by.y = "cust_id", all.x = TRUE, suffixes = c("", ".y"))
 merged_data$cust_referral[merged_data$cust_reg_date < merged_data$cust_reg_date.y] <- ""
-merged_data <- select(merged_data, cust_id, cust_reg_date.x, cust_last_name, cust_first_name, cust_email, cust_password, cust_phone, cust_zipcode, cust_street_address, cust_city, cust_county, membership, cust_birth_date, cust_referral)
+merged_data <- select(merged_data, cust_id, cust_reg_date, cust_last_name, cust_first_name, cust_email, cust_password, cust_phone, cust_zipcode, cust_street_address, cust_city, cust_county, membership, cust_birth_date, cust_referral)
 
 
 # Ad
