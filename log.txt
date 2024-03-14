@@ -1,0 +1,17 @@
+DATA VALIDATION LOG
+customer
+	 Sufficient primary key
+	 All customer emails are valid
+	 Sufficient input on "cust_birth_date"
+ad
+	 Sufficient primary key
+product
+	 Sufficient primary key
+promotion
+	 Sufficient primary key
+stock
+	 Sufficient primary key
+supplier
+	 Sufficient primary key
+warehouse
+	 Sufficient primary key
