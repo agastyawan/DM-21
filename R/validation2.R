@@ -41,6 +41,18 @@ check_date <- function(table, coldate) {
     close(log_file)
   }
 }
+# Make a function to check foreign key
+check_fk <- function(table,fk,ref) {
+  log_file <- file("log.txt", "a")
+  if(all(table[[fk]] %in% ref[[fk]])) {
+    message <- paste("\t The foreign key", (deparse(substitute(table)))," are well-connected ")
+    writeLines(message, log_file)
+    close(log_file)
+  } else {
+    writeLines("\t invalid reference foreign key", log_file)
+    close(log_file)
+  }
+}
 
 # Customer
 customer <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
@@ -81,6 +93,7 @@ check_pk(ad,"ad_id")
 # Product
 product <- readr::read_csv("data_upload/product.csv", col_types=cols()) 
 check_pk(product,"product_id")
+check_fk(product, "w_id", warehouse)
 
 # Promotion
 promotion <- readr::read_csv("data_upload/promotion.csv", col_types=cols()) 
