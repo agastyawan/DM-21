@@ -45,3 +45,8 @@ jobs:
           git add .
           git commit -m "Write new data"
           git push
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+            github_token: ${{ secrets.DM21 }}
+            branch: main
