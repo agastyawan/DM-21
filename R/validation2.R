@@ -7,6 +7,7 @@ library(dplyr)
 # Make a log file
 log_file <- file("log.txt", "w")
 writeLines("DATA VALIDATION LOG", log_file)
+writeLines(print(timestamp()), log_file)
 close(log_file)
 
 # Make a function to check primary key 
