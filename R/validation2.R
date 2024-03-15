@@ -54,8 +54,17 @@ check_fk <- function(table,fk,ref) {
   }
 }
 
-# Customer
+# Read the table
 customer <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
+ad <- readr::read_csv("data_upload/ad.csv", col_types=cols()) 
+promotion <- readr::read_csv("data_upload/promotion.csv", col_types=cols()) 
+product <- readr::read_csv("data_upload/product.csv", col_types=cols()) 
+stock <- readr::read_csv("data_upload/stock.csv", col_types=cols()) 
+supplier <- readr::read_csv("data_upload/supplier.csv", col_types=cols()) 
+warehouse <- readr::read_csv("data_upload/warehouse.csv", col_types=cols()) 
+
+
+# Customer
 check_pk(customer,"cust_id")
 ## email
 isValidEmail <- function(x) {
@@ -87,26 +96,20 @@ merged_data <- select(merged_data, cust_id, cust_reg_date, cust_last_name, cust_
 
 
 # Ad
-ad <- readr::read_csv("data_upload/ad.csv", col_types=cols()) 
 check_pk(ad,"ad_id")
 
 # Product
-product <- readr::read_csv("data_upload/product.csv", col_types=cols()) 
 check_pk(product,"product_id")
 check_fk(product, "w_id", warehouse)
 
 # Promotion
-promotion <- readr::read_csv("data_upload/promotion.csv", col_types=cols()) 
 check_pk(promotion,"promotion_id")
 
 # Stock
-stock <- readr::read_csv("data_upload/stock.csv", col_types=cols()) 
 check_pk(stock,"sku")
 
 # Supplier
-supplier <- readr::read_csv("data_upload/supplier.csv", col_types=cols()) 
 check_pk(supplier,"s_id")
 
 # Warehouse
-warehouse <- readr::read_csv("data_upload/warehouse.csv", col_types=cols()) 
 check_pk(warehouse,"w_id")
