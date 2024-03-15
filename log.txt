@@ -1,5 +1,5 @@
 DATA VALIDATION LOG
-##------ Fri Mar 15 13:37:22 2024 ------##
+##------ Fri Mar 15 13:57:39 2024 ------##
 customer
 	 Sufficient primary key
 	 All customer emails are valid
@@ -8,6 +8,7 @@ ad
 	 Sufficient primary key
 product
 	 Sufficient primary key
+	 The foreign key product  are well-connected 
 promotion
 	 Sufficient primary key
 stock
