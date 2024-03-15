@@ -12,7 +12,7 @@ merged_data <- merge (customer_db, order_db, by = 'cust_id')
 distribution_customer <- ggplot(customer_db, aes(x=cust_county, fill = cust_county)) +
   geom_bar()
 
-ggsave("figure/distribution_customer.png", plot =distribution_customer)
+ggsave("distribution_customer.png", plot =distribution_customer)
 
 count_data <- merged_data %>%
   group_by(cust_county, payment_method) %>%
@@ -25,4 +25,4 @@ ordervscounty <- ggplot(data = count_data, aes(x = cust_county, y = order_count,
        y = "Number of Orders",
        fill = "Payment Method")
 
-ggsave("figure/ordervscounty.png", plot =ordervscounty)
+ggsave("ordervscounty.png", plot =ordervscounty)
