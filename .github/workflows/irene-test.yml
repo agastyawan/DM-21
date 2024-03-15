@@ -35,6 +35,9 @@ jobs:
       - name: Execute R script
         run: |
           Rscript R/data_load.R
+      - name: Execute R script Visualisation
+        run: |
+          Rscript R/visualisation.R
       - name: Commit and push changes
         run: |
           git config --global user.name "agastyawan"
