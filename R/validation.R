@@ -28,7 +28,7 @@ write.csv(new_order_records, file = "new_record/order.csv", row.names = FALSE)
 
 product_db <- dbGetQuery(my_db, "SELECT * FROM product")
 product_push_data <- readr::read_csv("data_upload/product.csv", col_types=cols()) 
-new_product_records <- anti_join(product_push_data, product_db, by = "ad_id")
+new_product_records <- anti_join(product_push_data, product_db, by = "product_id")
 write.csv(new_product_records, file = "new_record/product.csv", row.names = FALSE)
 
 promote_db <- dbGetQuery(my_db, "SELECT * FROM promote")
