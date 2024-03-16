@@ -2,12 +2,20 @@ library(readr)
 library(RSQLite)
 library(dplyr)
 
-customer_data <- readr::read_csv("new_record/customer.csv", col_types=cols()) 
-ad_data <- readr::read_csv("new_record/ad.csv", col_types=cols()) 
+customer_data <- readr::read_csv("new_record/customer.csv", col_types=cols(
+  cust_reg_date = col_character(),
+  cust_birth_date = col_character()
+)) 
+ad_data <- readr::read_csv("new_record/ad.csv", col_types=cols(
+  start_date = col_character(),
+  end_date = col_character()
+)) 
 warehouse_data <- readr::read_csv("new_record/warehouse.csv", col_types=cols())
 promotion_data <- readr::read_csv("new_record/promotion.csv", col_types=cols())
 product_data <- readr::read_csv("new_record/product.csv", col_types=cols()) 
-order_data <- readr::read_csv("new_record/order.csv", col_types=cols())
+order_data <- readr::read_csv("new_record/order.csv", col_types=cols(
+  order_date = col_character()
+))
 sell_data <- readr::read_csv("new_record/sell.csv", col_types=cols())
 supplier_data <- readr::read_csv("new_record/supplier.csv", col_types=cols()) 
 promote_data <- readr::read_csv("new_record/promote.csv", col_types=cols()) 
