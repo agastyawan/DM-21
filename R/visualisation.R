@@ -2,7 +2,7 @@ library(ggplot2)
 library(RSQLite)
 library(dplyr)
 
-my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e-commerce.db")
+my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e_commerce.db")
 
 customer_db <- dbGetQuery(my_db, "SELECT * FROM customer")
 order_db <- dbGetQuery(my_db, "SELECT * FROM 'order'")
