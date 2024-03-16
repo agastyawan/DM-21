@@ -2,7 +2,7 @@ library(readr)
 library(RSQLite)
 library(dplyr)
 
-my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e-commerce.db")
+my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e_commerce.db")
 
 # Check new data 
 
