@@ -13,7 +13,7 @@ supplier_data <- readr::read_csv("new_record/supplier.csv", col_types=cols())
 promote_data <- readr::read_csv("new_record/promote.csv", col_types=cols()) 
 stock_data <- readr::read_csv("new_record/stock.csv", col_types=cols())
 
-my_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e-commerce.db")
+my_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e_commerce.db")
 
 RSQLite::dbWriteTable(my_connection,"customer",customer_data, append = TRUE, row.names = FALSE)
 RSQLite::dbWriteTable(my_connection,"ad",ad_data, append = TRUE, row.names = FALSE)
