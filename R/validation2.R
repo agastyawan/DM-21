@@ -25,7 +25,7 @@ check_pk <- function(table, pk) {
 }
 
 # Make a function to check date format
-IsDate <- function(mydate, date.format = "%y/%m/%d") {
+IsDate <- function(mydate, date.format = "%y-%m-%d") {
   tryCatch(!is.na(as.Date(mydate, date.format)),  
            error = function(err) {FALSE})  
 }
