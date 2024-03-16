@@ -28,7 +28,7 @@ jobs:
           Rscript -e 'install.packages(c("ggplot2","dplyr","readr","RSQLite"))'
       - name: Execute R script validation2
         run: |
-          Rscript R/validation2.R
+          Rscript R/structurevalidation.R
       - name: Execute R script validation
         run: |
           Rscript R/validation.R
