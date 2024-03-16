@@ -38,7 +38,6 @@ write.csv(new_promote_records, file = "new_record/promote.csv", row.names = FALS
 
 promotion_db <- dbGetQuery(my_db, "SELECT * FROM promotion")
 promotion_push_data <- readr::read_csv("data_upload/promotion.csv", col_types=cols()) 
-promotion_db$promotion_exp_date <- as.Date(promotion_db$promotion_exp_date, origin = "1970-01-01")
 promotion_db$promotion_rate <- as.character(promotion_db$promotion_rate)
 new_promotion_records <- anti_join(promotion_push_data, promotion_db, by = "promotion_id")
 write.csv(new_promotion_records, file = "new_record/promotion.csv", row.names = FALSE)
