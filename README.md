@@ -303,16 +303,11 @@ Github workflow set up of the automated actions. This workflow will automaticall
 **1.  Structure validation**
 
     The workflow will run the structurevalidation.R which will check the data in data_upload:
-
-    -   The structure of data is similar with database
-
-    -   The primary key is unique
-
-    -   There is no duplicated value
-
-    -   The foreign key is well referenced
-
-    -   The data_type is similar with the schema
+      The structure of data is similar with database
+      The primary key is unique
+      There is no duplicated value
+      The foreign key is well referenced
+      The data_type is similar with the schema
 
     Every step will be recorded in the logfile.
 
