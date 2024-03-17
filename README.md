@@ -300,7 +300,7 @@ We compare the db schema in the development branch after merging the data to the
 
 Github workflow set up of the automated actions. This workflow will automatically run the following action every time new data is committed:
 
-1.  Structure validation
+**1.  Structure validation**
 
     The workflow will run the structurevalidation.R which will check the data in data_upload:
 
@@ -316,15 +316,13 @@ Github workflow set up of the automated actions. This workflow will automaticall
 
     Every step will be recorded in the logfile.
 
-2.  Data validation
-
+**2.  Data validation**
     The workflow will run the validation.R which will check the new records in data_upload compared to the records in database. If there is new record, it will generate new csv file in new_record folder. 
     Every step will be recorded in the logfile.
 
-3.  Load data
-
+**3.  Load data**
     The workflow will run the data_load.R which will append the new_record to the database.
     
-5.  Visualisation
+**4.  Visualisation**
 
     The workflow will run the visualisation.R which will produce the figure and store it to the folder figure.
