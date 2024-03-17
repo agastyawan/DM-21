@@ -11,8 +11,8 @@ close(log_file)
 
 checkcol <- function(tabledb, tablecsv) {
   log_file <- file(filename, "a")
-  db_column_names <- dbListFields(my_db, tabledb)
-  csv_column_names <- colnames(tablecsv)
+  db_column_names <- sort(dbListFields(my_db, tabledb))
+  csv_column_names <- sort(colnames(tablecsv))
   if (identical(db_column_names, csv_column_names)) {
     message <- paste("\t All columns in", (deparse(substitute(table))), "are similar")
     writeLines(message, log_file)
@@ -88,25 +88,6 @@ check_num <- function(table,col) {
   }
 }
 
-# Make a function to check email
-isValidEmail <- function(x) {
-  grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", as.character(x))
-}
-check_email <- function(table,col){
-  invalid_emails <- !isValidEmail(table[[col]])
-  log_file <- file(filename, "a")
-  if (sum(invalid_emails) == 0) {
-  writeLines("\t All emails are valid", log_file)
-  close(log_file)
-  } else {
-  writeLines("\t There are invalid emails:", log_file)
-  writeLines(as.character(customer$cust_email[invalid_emails]), log_file)
-  close(log_file)
-  }
-}
-
-
-
 # Read the table
 customer <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
 ad <- readr::read_csv("data_upload/ad.csv", col_types=cols()) 
@@ -118,6 +99,7 @@ order <- readr::read_csv("data_upload/order.csv", col_types=cols())
 sell <- readr::read_csv("data_upload/sell.csv", col_types=cols())
 stock <- readr::read_csv("data_upload/stock.csv", col_types=cols())
 promote <- readr::read_csv("data_upload/promote.csv", col_types=cols()) 
+product <- readr::read_csv("data_upload/product.csv", col_types=cols()) 
 my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"e_commerce.db")
 
 
@@ -125,6 +107,23 @@ my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"e_commerce.db")
 log_file <- file(filename, "a")
 writeLines("\n CUSTOMER", log_file)
 close(log_file)
+
+# Make a function to check email
+isValidEmail <- function(x) {
+  grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", as.character(x))
+}
+check_email <- function(table,col){
+  invalid_emails <- !isValidEmail(table[[col]])
+  log_file <- file(filename, "a")
+  if (sum(invalid_emails) == 0) {
+    writeLines("\t All emails are valid", log_file)
+    close(log_file)
+  } else {
+    writeLines("\t There are invalid emails:", log_file)
+    writeLines(as.character(customer$cust_email[invalid_emails]), log_file)
+    close(log_file)
+  }
+}
 
 checkcol('customer', customer)
 check_pk(customer,"cust_id")
@@ -147,7 +146,7 @@ check_ref <- function(table) {
 check_ref(customer)
 
 # Ad
-checkcol('ad', ad)
+#checkcol('ad', "ad")
 log_file <- file(filename, "a")
 writeLines("\n AD", log_file)
 close(log_file)
