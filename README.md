@@ -184,3 +184,108 @@ CREATE TABLE IF NOT EXISTS promote(
   FOREIGN KEY (ad_id) REFERENCES ad (ad_id)
 );
 ```
+# Generate Synthetic data
+
+In this section, various R packages and address datasets were utilised to generate synthetic data that conforms to the previously created database schema. Datasets for all tables have been successfully generated, aligning with the E-R diagram and SQL schema. Descriptions are provided for five representative datasets to illustrate their contents.
+
+## Personal data generation
+
+Synthetic personal data, including addresses and phone numbers, was generated using authentic UK postcode data with city and county details. Random street names were extracted from **`street_name.csv`** for address authenticity. British phone numbers starting with '07' and consisting of nine digits were generated to meet UK telecommunication standards.
+
+## Generating datasets for tables
+
+### Customer data
+
+Customer data was generated with a specific date range for registration dates **`cust_reg_date`**, ensuring it falls after the customer's birthday **`cust_birth_date`**. Names and passwords were created using the **`generator`** package, with names divided into first and last names. Customer passwords were encrypted for security. Zip codes and addresses were generated utilising the mentioned dataset.
+
+| cust_id | cust_reg_date | cust_last_name | cust_first_name |
+|---------|---------------|----------------|-----------------|
+| 1       | 2020-10-14    | Clarke-Green   | Rita            |
+| 2       | 2019-11-11    | Burrows        | Karl            |
+| 3       | 2023-12-18    | Howard         | Holly           |
+
+: customer reg_date and name
+
+| cust_password                    |
+|----------------------------------|
+| 2e06cf4fda81ae33015430fed51f5127 |
+| 2e06cf4fda81ae33015430fed51f5127 |
+| 2e06cf4fda81ae33015430fed51f5127 |
+
+: customer password
+
+| cust_zipcode | cust_street_address | cust_city | cust_county |
+|--------------|---------------------|-----------|-------------|
+| W3           | Stanley Road 51     | Ealing    | England     |
+| SW2          | Church Lane 56      | Lambeth   | England     |
+| SG19         | The Green 39        | Everton   | England     |
+
+: customer address
+
+### Product data
+
+In the product data, 30 entries are distributed among 10 distinct categories. To ensure consistency, the structure of the 'model_name' attribute across all products has been standardised. The **`cost_price`** of each product is randomly assigned within a range of 85% to 90% of the **`selling_price`**, maintaining variability while adhering to predetermined criteria.
+
++------------+---------------+------------+---------------+-----------+------------+
+| product_id | category_name | model_name | selling_price | stock_qty | cost_price |
++===========:+:==============+:===========+==============:+==========:+===========:+
+| 1          | keyboards     | o3t9       | 714           | 134       | 606.90     |
++------------+---------------+------------+---------------+-----------+------------+
+| 2          | flute         | l6y5       | 2359          | 153       | 2005.15    |
++------------+---------------+------------+---------------+-----------+------------+
+| 3          | guitar        | y8h6       | 1348          | 106       | 1145.80    |
++------------+---------------+------------+---------------+-----------+------------+
+
+: product data
+
+### Ad data
+
+The company employs six types of media for advertising, with each 'ad_name' derived from the corresponding **`ad_type`**. We've verified that the **`end_date`** of each ad falls after its **`start_date`**. Moreover, in accordance with industry standards, constraints have been applied, ensuring that **`impression`** exceeds **`click`**, which in turn exceeds **`action`**. Specific conditions, such as **`click`** being less than 10% of **`impression`**, are enforced.
+
+| ad_id | media_name | ad_type   | start_date |   end_date |
+|------:|:-----------|:----------|-----------:|-----------:|
+|     1 | Google     | Promotion | 2020-09-29 | 2020-11-12 |
+|     2 | Flyer      | Promotion | 2021-04-20 | 2021-07-06 |
+|     3 | Flyer      | Cut Off   | 2018-10-26 | 2018-11-18 |
+
+: ad specification
+
+| impression | cost | revenue | click | action |
+|-----------:|-----:|--------:|------:|-------:|
+|       3340 | 1350 | 2970.00 |   253 |     34 |
+|      26095 | 1276 |  165.88 |  1401 |     73 |
+|      41469 |   34 |  151.64 |  2643 |    382 |
+
+: ad performance
+
+### Warehouse data
+
+The company operates one warehouse for each region of England, Wales, and Scotland. The warehouse names **`w_name`** are derived from the names of the respective regions (counties). For example, warehouse 'Eng01' corresponds to the region of England and has address information based on England.
+
++----------+----------+-----------+------------------+------------+----------+
+| w_id     | w_name   | w_zipcode | w_street_address | w_city     | w_county |
++=========:+:=========+:==========+:=================+:===========+:=========+
+| 3        | Scot01   | G82       | Kings Road 2     | Dumbarton  | Scotland |
++----------+----------+-----------+------------------+------------+----------+
+| 1        | Eng01    | LS23      | West Street 8    | Boston Spa | England  |
++----------+----------+-----------+------------------+------------+----------+
+| 2        | Wales01  | SA6       | New Street 4     | Morriston  | Wales    |
++----------+----------+-----------+------------------+------------+----------+
+
+: warehouse data
+
+### Relationship data
+
+Relationship data is generated from many-to-many (M:N) relationships between entities, necessitating that the foreign key data is derived from existing entity data. For instance, in the order data, **`cust_id`**, **`product_id`**, and **`promotion_id`** are referenced from previously generated data. Furthermore, to ensure consistency, for orders sharing the same **`order_id`**, the **`payment_method`** has been standardized, as each order is associated with only one payment method.
+
++----------+----------+------------+--------------+----------+----------------+
+| order_id | cust_id  | product_id | promotion_id | quantity | payment_method |
++=========:+=========:+===========:+=============:+=========:+:===============+
+| 1        | 93       | 19         | 3            | 5        | Credit Card    |
++----------+----------+------------+--------------+----------+----------------+
+| 2        | 24       | 24         | 2            | 2        | Debit Card     |
++----------+----------+------------+--------------+----------+----------------+
+| 3        | 3        | 13         | 2            | 3        | Paypal         |
++----------+----------+------------+--------------+----------+----------------+
+
+: order data
