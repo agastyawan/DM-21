@@ -204,7 +204,6 @@ Customer data was generated with a specific date range for registration dates **
 | 2       | 2019-11-11    | Burrows        | Karl            |
 | 3       | 2023-12-18    | Howard         | Holly           |
 
-: customer reg_date and name
 
 | cust_password                    |
 |----------------------------------|
@@ -212,7 +211,6 @@ Customer data was generated with a specific date range for registration dates **
 | 2e06cf4fda81ae33015430fed51f5127 |
 | 2e06cf4fda81ae33015430fed51f5127 |
 
-: customer password
 
 | cust_zipcode | cust_street_address | cust_city | cust_county |
 |--------------|---------------------|-----------|-------------|
@@ -220,23 +218,18 @@ Customer data was generated with a specific date range for registration dates **
 | SW2          | Church Lane 56      | Lambeth   | England     |
 | SG19         | The Green 39        | Everton   | England     |
 
-: customer address
 
 ### Product data
 
 In the product data, 30 entries are distributed among 10 distinct categories. To ensure consistency, the structure of the 'model_name' attribute across all products has been standardised. The **`cost_price`** of each product is randomly assigned within a range of 85% to 90% of the **`selling_price`**, maintaining variability while adhering to predetermined criteria.
 
-+------------+---------------+------------+---------------+-----------+------------+
-| product_id | category_name | model_name | selling_price | stock_qty | cost_price |
-+===========:+:==============+:===========+==============:+==========:+===========:+
-| 1          | keyboards     | o3t9       | 714           | 134       | 606.90     |
-+------------+---------------+------------+---------------+-----------+------------+
-| 2          | flute         | l6y5       | 2359          | 153       | 2005.15    |
-+------------+---------------+------------+---------------+-----------+------------+
-| 3          | guitar        | y8h6       | 1348          | 106       | 1145.80    |
-+------------+---------------+------------+---------------+-----------+------------+
 
-: product data
+| product_id | category_name | model_name | selling_price | stock_qty | cost_price |
+|------------|---------------|------------|---------------|-----------|------------|
+| 1          | keyboards     | o3t9       | 714           | 134       | 606.90     |
+| 2          | flute         | l6y5       | 2359          | 153       | 2005.15    |
+| 3          | guitar        | y8h6       | 1348          | 106       | 1145.80    |
+
 
 ### Ad data
 
@@ -248,7 +241,6 @@ The company employs six types of media for advertising, with each 'ad_name' deri
 |     2 | Flyer      | Promotion | 2021-04-20 | 2021-07-06 |
 |     3 | Flyer      | Cut Off   | 2018-10-26 | 2018-11-18 |
 
-: ad specification
 
 | impression | cost | revenue | click | action |
 |-----------:|-----:|--------:|------:|-------:|
@@ -256,36 +248,27 @@ The company employs six types of media for advertising, with each 'ad_name' deri
 |      26095 | 1276 |  165.88 |  1401 |     73 |
 |      41469 |   34 |  151.64 |  2643 |    382 |
 
-: ad performance
 
 ### Warehouse data
 
 The company operates one warehouse for each region of England, Wales, and Scotland. The warehouse names **`w_name`** are derived from the names of the respective regions (counties). For example, warehouse 'Eng01' corresponds to the region of England and has address information based on England.
 
-+----------+----------+-----------+------------------+------------+----------+
-| w_id     | w_name   | w_zipcode | w_street_address | w_city     | w_county |
-+=========:+:=========+:==========+:=================+:===========+:=========+
-| 3        | Scot01   | G82       | Kings Road 2     | Dumbarton  | Scotland |
-+----------+----------+-----------+------------------+------------+----------+
-| 1        | Eng01    | LS23      | West Street 8    | Boston Spa | England  |
-+----------+----------+-----------+------------------+------------+----------+
-| 2        | Wales01  | SA6       | New Street 4     | Morriston  | Wales    |
-+----------+----------+-----------+------------------+------------+----------+
 
-: warehouse data
+| w_id     | w_name   | w_zipcode | w_street_address | w_city     | w_county |
+|----------|----------|-----------|------------------|------------|----------|
+| 3        | Scot01   | G82       | Kings Road 2     | Dumbarton  | Scotland |
+| 1        | Eng01    | LS23      | West Street 8    | Boston Spa | England  |
+| 2        | Wales01  | SA6       | New Street 4     | Morriston  | Wales    |
+
 
 ### Relationship data
 
 Relationship data is generated from many-to-many (M:N) relationships between entities, necessitating that the foreign key data is derived from existing entity data. For instance, in the order data, **`cust_id`**, **`product_id`**, and **`promotion_id`** are referenced from previously generated data. Furthermore, to ensure consistency, for orders sharing the same **`order_id`**, the **`payment_method`** has been standardized, as each order is associated with only one payment method.
 
-+----------+----------+------------+--------------+----------+----------------+
-| order_id | cust_id  | product_id | promotion_id | quantity | payment_method |
-+=========:+=========:+===========:+=============:+=========:+:===============+
-| 1        | 93       | 19         | 3            | 5        | Credit Card    |
-+----------+----------+------------+--------------+----------+----------------+
-| 2        | 24       | 24         | 2            | 2        | Debit Card     |
-+----------+----------+------------+--------------+----------+----------------+
-| 3        | 3        | 13         | 2            | 3        | Paypal         |
-+----------+----------+------------+--------------+----------+----------------+
 
-: order data
+| order_id | cust_id  | product_id | promotion_id | quantity | payment_method |
+|----------|----------|------------|--------------|----------|----------------|
+| 1        | 93       | 19         | 3            | 5        | Credit Card    |
+| 2        | 24       | 24         | 2            | 2        | Debit Card     |
+| 3        | 3        | 13         | 2            | 3        | Paypal         |
+
