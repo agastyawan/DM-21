@@ -125,7 +125,7 @@ check_email <- function(table,col){
   }
 }
 
-checkcol('customer', customer)
+#checkcol('customer', customer)
 check_pk(customer,"cust_id")
 check_date(customer,"cust_reg_date")
 check_email(customer, "cust_email")
@@ -146,11 +146,10 @@ check_ref <- function(table) {
 check_ref(customer)
 
 # Ad
-#checkcol('ad', "ad")
 log_file <- file(filename, "a")
 writeLines("\n AD", log_file)
 close(log_file)
-
+#checkcol('ad', "ad")
 check_pk(ad,"ad_id")
 check_date(ad,"start_date")
 check_date(ad,"end_date")
@@ -161,11 +160,11 @@ check_num(ad,"action")
 check_num(ad,"revenue")
 
 # Order
-checkcol('order', order)
 log_file <- file(filename, "a")
 writeLines("\n ORDER", log_file)
 close(log_file)
 
+#checkcol('order', order)
 if (length(unique(paste(order$order_id, order$cust_id, order$product_id))) != nrow(order)) {
   message <- paste("\tPrimary key in", deparse(substitute(order)), "is not unique")
   log_file <- file(filename, "a")
@@ -186,66 +185,61 @@ check_fk(order, "promotion_id", promotion)
 
 
 # Product
-checkcol('product', product)
 log_file <- file(filename, "a")
 writeLines("\n PRODUCT", log_file)
 close(log_file)
-
+checkcol('product', product)
 check_pk(product,"product_id")
 check_num(product,"selling_price")
 check_num(product,"cost_price")
 check_fk(product, "w_id", warehouse)
 
 # Promotion
-checkcol('promotion', promotion)
 log_file <- file(filename, "a")
 writeLines("\n PRODUCT", log_file)
 close(log_file)
-
+checkcol('promotion', promotion)
 check_pk(promotion,"promotion_id")
 
 # Stock
-checkcol('stock', stock)
 log_file <- file(filename, "a")
 writeLines("\n STOCK", log_file)
 close(log_file)
 
+#checkcol('stock', stock)
 check_pk(stock, "sku")
 check_fk(stock, "w_id", warehouse)
 check_fk(stock, "product_id", product)
 
 
 # Supplier
-checkcol('supplier', supplier)
 log_file <- file(filename, "a")
 writeLines("\n SUPPLIER", log_file)
 close(log_file)
-
+#checkcol('supplier', supplier)
 check_pk(supplier,"s_id")
 
 # Warehouse
-checkcol('warehouse', warehouse)
 log_file <- file(filename, "a")
 writeLines("\n WAREHOUSE", log_file)
 close(log_file)
-
+#checkcol('warehouse', warehouse)
 check_pk(warehouse,"w_id")
 
 # Sell
-checkcol('sell', sell)
 log_file <- file(filename, "a")
 writeLines("\n SELL", log_file)
 close(log_file)
-
+#checkcol('sell', sell)
 check_fk(sell, "s_id", supplier)
 check_fk(sell, "product_id", product)
 
 # Promote
-checkcol('promote', promote)
 log_file <- file(filename, "a")
 writeLines("\n PROMOTE", log_file)
 close(log_file)
 
+#checkcol('promote', promote)
 check_fk(promote, "ad_id", ad)
 check_fk(promote, "product_id", product)
 
