@@ -3,7 +3,7 @@ library(RSQLite)
 library(dplyr)
 
 # Make a log file
-filename <- paste("log",format(Sys.time(), "%y%m%d_%H%M"))
+filename <- file.path("log", paste("log", format(Sys.time(), "%y%m%d_%H%M"), ".txt"))
 log_file <- file(filename, "w")
 writeLines("STRUCTURE DATA VALIDATION LOG", log_file)
 writeLines(print(timestamp()), log_file)
