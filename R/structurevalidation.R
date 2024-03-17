@@ -9,7 +9,6 @@ writeLines("STRUCTURE DATA VALIDATION LOG", log_file)
 writeLines(print(timestamp()), log_file)
 close(log_file)
 
-# Make a function to check the variable
 checkcol <- function(tabledb, tablecsv) {
   log_file <- file(filename, "a")
   db_column_names <- sort(dbListFields(my_db, tabledb))
@@ -38,6 +37,21 @@ check_pk <- function(table, pk) {
     close(log_file)
   }
 }
+
+# Make a function to check duplicate value
+duprec <- function(tablecsv) {
+  log_file <- file(filename, "a")
+  if (sum(duplicated(tablecsv)) == 0) {
+    message <- paste("\t There is no duplicated data in", deparse(substitute(tablecsv)))
+    writeLines(message, log_file)
+    close(log_file)
+  } else {
+    writeLines("\t There is duplicated data", log_file)
+    close(log_file)
+    stop("Stopping workflow execution.")
+  }
+}
+
 
 # Make a function to check date format
 IsDate <- function(mydate, date.format = "%y-%m-%d") {
@@ -127,6 +141,7 @@ check_email <- function(table,col){
 }
 
 #checkcol('customer', customer)
+duprec(customer)
 check_pk(customer,"cust_id")
 check_date(customer,"cust_reg_date")
 check_email(customer, "cust_email")
@@ -151,6 +166,7 @@ log_file <- file(filename, "a")
 writeLines("\n AD", log_file)
 close(log_file)
 #checkcol('ad', "ad")
+duprec(ad)
 check_pk(ad,"ad_id")
 check_date(ad,"start_date")
 check_date(ad,"end_date")
@@ -177,7 +193,7 @@ if (length(unique(paste(order$order_id, order$cust_id, order$product_id))) != nr
   writeLines("\tSufficient primary key", log_file)
   close(log_file)
 }
-
+duprec(order)
 check_date(order,"order_date")
 check_num(order,"quantity")
 check_fk(order, "cust_id", customer)
@@ -189,7 +205,8 @@ check_fk(order, "promotion_id", promotion)
 log_file <- file(filename, "a")
 writeLines("\n PRODUCT", log_file)
 close(log_file)
-checkcol('product', product)
+duprec(product)
+#checkcol('product', product)
 check_pk(product,"product_id")
 check_num(product,"selling_price")
 check_num(product,"cost_price")
@@ -199,7 +216,8 @@ check_fk(product, "w_id", warehouse)
 log_file <- file(filename, "a")
 writeLines("\n PRODUCT", log_file)
 close(log_file)
-checkcol('promotion', promotion)
+duprec(promotion)
+#checkcol('promotion', promotion)
 check_pk(promotion,"promotion_id")
 
 # Stock
@@ -208,6 +226,7 @@ writeLines("\n STOCK", log_file)
 close(log_file)
 
 #checkcol('stock', stock)
+duprec(stock)
 check_pk(stock, "sku")
 check_fk(stock, "w_id", warehouse)
 check_fk(stock, "product_id", product)
@@ -217,6 +236,7 @@ check_fk(stock, "product_id", product)
 log_file <- file(filename, "a")
 writeLines("\n SUPPLIER", log_file)
 close(log_file)
+duprec(supplier)
 #checkcol('supplier', supplier)
 check_pk(supplier,"s_id")
 
@@ -224,6 +244,7 @@ check_pk(supplier,"s_id")
 log_file <- file(filename, "a")
 writeLines("\n WAREHOUSE", log_file)
 close(log_file)
+duprec(warehouse)
 #checkcol('warehouse', warehouse)
 check_pk(warehouse,"w_id")
 
@@ -231,6 +252,7 @@ check_pk(warehouse,"w_id")
 log_file <- file(filename, "a")
 writeLines("\n SELL", log_file)
 close(log_file)
+duprec(sell)
 #checkcol('sell', sell)
 check_fk(sell, "s_id", supplier)
 check_fk(sell, "product_id", product)
@@ -239,7 +261,7 @@ check_fk(sell, "product_id", product)
 log_file <- file(filename, "a")
 writeLines("\n PROMOTE", log_file)
 close(log_file)
-
+duprec(promote)
 #checkcol('promote', promote)
 check_fk(promote, "ad_id", ad)
 check_fk(promote, "product_id", product)
