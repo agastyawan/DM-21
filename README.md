@@ -298,64 +298,7 @@ We compare the db schema in the development branch after merging the data to the
 
 ### Github Repository and Workflow Setup
 
-Github workflow set up of the automated actions. The code in Github workflow can be seen as follows:
-
-``` {#github.workflow eval="FALSE"}
- name: DM-21
-
-on:
-#  schedule:
-#    - cron: '0 */3 * * *' # Run every 3 hours
-  push:
-    branches: [ main ]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Setup R environment
-        uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: '4.2.0'
-      - name: Cache R packages
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-r-${{ hashFiles('**/lockfile') }}
-          restore-keys: |
-            ${{ runner.os }}-r-
-      - name: Install packages
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          Rscript -e 'install.packages(c("ggplot2","dplyr","readr","RSQLite"))'
-      - name: Execute R script validation2
-        run: |
-          Rscript R/structurevalidation.R
-      - name: Execute R script validation
-        run: |
-          Rscript R/validation.R
-      - name: Execute R script
-        run: |
-          Rscript R/data_load.R
-      - name: Execute R script Visualisation
-        run: |
-          Rscript R/visualisation.R
-      - name: Commit and push changes
-        run: |
-          git config --global user.name "agastyawan"
-          git config --global user.email "agastyawan@gmail.com"
-          git add .
-          git commit -m "Write new data"
-          git push
-      - name: Push changes
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-            github_token: ${{ secrets.DM21 }}
-            branch: main
-```
-
-This workflow will automatically run the following action every time new data is committed:
+Github workflow set up of the automated actions. This workflow will automatically run the following action every time new data is committed:
 
 1.  Structure validation
 
@@ -373,141 +316,15 @@ This workflow will automatically run the following action every time new data is
 
     Every step will be recorded in the logfile.
 
-    ``` {#structurevalidation eval="FALSE"}
-    # Make a log file
-    filename <- file.path("log", paste("log", format(Sys.time(), "%y%m%d_%H%M"), ".txt"))
-    log_file <- file(filename, "w")
-    writeLines("STRUCTURE DATA VALIDATION LOG", log_file)
-    writeLines(print(timestamp()), log_file)
-    close(log_file)
-
-    # Make a function to check the variable
-    checkcol <- function(tabledb, tablecsv) {
-      log_file <- file(filename, "a")
-      db_column_names <- sort(dbListFields(my_db, tabledb))
-      csv_column_names <- sort(colnames(tablecsv))
-      if (identical(db_column_names, csv_column_names)) {
-        message <- paste("\t All columns in", (deparse(substitute(table))), "are similar")
-        writeLines(message, log_file)
-        close(log_file)
-      } else {
-        writeLines("\t The columns are different", log_file)
-        close(log_file)
-        stop("Stopping workflow execution.")
-      }
-    }
-
-    # Make a function to check primary key 
-    check_pk <- function(table, pk) {
-      log_file <- file(filename, "a")
-      if (sum(duplicated(table[[pk]])) != 0) {
-        message <- paste("\t Primary key in", (deparse(substitute(table))), "is not unique")
-        writeLines(message, log_file)
-        close(log_file)
-        stop("Stopping workflow execution.")
-      } else {
-        writeLines("\t Sufficient primary key", log_file)
-        close(log_file)
-      }
-    }
-
-    # Make a function to check duplicate value
-    duprec <- function(tablecsv) {
-      log_file <- file(filename, "a")
-      if (sum(duplicated(tablecsv)) == 0) {
-        message <- paste("\t There is no duplicated data in", deparse(substitute(tablecsv)))
-        writeLines(message, log_file)
-        close(log_file)
-      } else {
-        temp <- unique(tablecsv)
-        write.csv(temp, file = paste("data_upload/", tablecsv, ".csv", sep = ""), row.names = FALSE)
-        writeLines("\t Duplicated data have been removed", log_file)
-        close(log_file)
-      }
-    }
-
-    # Make a function to check date format
-    IsDate <- function(mydate, date.format = "%y-%m-%d") {
-      tryCatch(!is.na(as.Date(mydate, date.format)),  
-               error = function(err) {FALSE})  
-    }
-
-    check_date <- function(table, coldate) {
-      log_file <- file(filename, "a")
-      if (sum(IsDate(table[[coldate]])) == nrow(table)) {
-        message <- paste("\t The data type in ", deparse(substitute(col))," is sufficient")
-        writeLines(message, log_file)
-        close(log_file)
-      } else {
-        message <- paste("\t The data type in ", deparse(substitute(col))," is invalid")
-        writeLines(message, log_file)
-        close(log_file)
-        stop("Stopping workflow execution.")
-      }
-    }
-
-    # Make a function to check foreign key
-    check_fk <- function(table,fk,ref) {
-      log_file <- file(filename, "a")
-      if(all(table[[fk]] %in% ref[[fk]])) {
-        message <- paste("\t The foreign key are well-connected ")
-        writeLines(message, log_file)
-        close(log_file)
-      } else {
-        message <- paste("\t There are some invalid foreign key")
-        writeLines("\t invalid reference foreign key", log_file)
-        close(log_file)
-        stop("Stopping workflow execution.")
-      }
-    }
-
-    # Make a function to check numeric datatype
-    check_num <- function(table,col) {
-      log_file <- file(filename, "a")
-      if (all(sapply(table[[col]], is.numeric))) {
-        message <- paste("\t The data type in ", deparse(substitute(col))," is sufficient")
-        writeLines(message, log_file)
-        close(log_file)
-      } else {
-        message <- paste("\t The data type in ", deparse(substitute(col))," is sufficient")
-        writeLines(message, log_file)
-        close(log_file)
-        stop("Stopping workflow execution.")
-      }
-    }
-
-    isValidEmail <- function(x) {
-      grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", as.character(x))
-    }
-    ```
-
 2.  Data validation
 
     The workflow will run the validation.R which will check the new records in data_upload compared to the records in database. If there is new record, it will generate new csv file in new_record folder. For example the customer data:
-
-    ``` {#validationdata eval="FALSE"}
-    customer_db <- dbGetQuery(my_db, "SELECT * FROM customer")
-    customer_push_data <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
-    new_customer_records <- anti_join(customer_push_data, customer_db, by = "cust_id")
-    write.csv(new_customer_records, file = "new_record/customer.csv", row.names = FALSE)
-    ```
 
     Every step will be recorded in the logfile.
 
 3.  Load data
 
     The workflow will run the data_load.R which will append the new_record to the database. For example customer:
-
-    ``` {#load_data eval="FALSE"}
-    customer_data <- readr::read_csv("new_record/customer.csv", col_types=cols(
-      cust_reg_date = col_character(),
-      cust_birth_date = col_character()
-    )) 
-
-    my_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e_commerce.db")
-
-    RSQLite::dbWriteTable(my_connection,"customer",customer_data, append = TRUE, row.names = FALSE)
-    ```
 
 4.  Visualisation
 
