@@ -12,5 +12,5 @@ For a One-to-Many relationship, we could use an example of the entities, Product
 
 Furthermore another concept that has been applied in the diagram, specifically towards the customer entity is the Self Referencing process. The process in particular is “give referral” process. This process itself happens between customers, customers who buy a product from Muse have the potential to refer the platform to another, could be a friend, family member, band mate etc. This would lead to that customer converting the referred
 
-![ER Diagram]([image link](https://github.com/agastyawan/DM-21/blob/ba8426decde2c54588419b3c032a97ae5a1f277c/figure/ER-Final.png)https://github.com/agastyawan/DM-21/blob/ba8426decde2c54588419b3c032a97ae5a1f277c/figure/ER-Final.png)
+![ER Diagram](https://github.com/agastyawan/DM-21/blob/main/figure/ER-Final.png?raw=true)
 
