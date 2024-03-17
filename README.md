@@ -307,7 +307,6 @@ Github workflow set up of the automated actions. This workflow will automaticall
       There is no duplicated value
       The foreign key is well referenced
       The data_type is similar with the schema
-
     Every step will be recorded in the logfile.
 
 **2.  Data validation**
