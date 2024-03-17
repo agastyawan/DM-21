@@ -9,6 +9,7 @@ writeLines("STRUCTURE DATA VALIDATION LOG", log_file)
 writeLines(print(timestamp()), log_file)
 close(log_file)
 
+# Make a function to check the variable
 checkcol <- function(tabledb, tablecsv) {
   log_file <- file(filename, "a")
   db_column_names <- sort(dbListFields(my_db, tabledb))
