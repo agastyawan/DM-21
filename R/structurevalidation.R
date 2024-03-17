@@ -9,6 +9,25 @@ writeLines("STRUCTURE DATA VALIDATION LOG", log_file)
 writeLines(print(timestamp()), log_file)
 close(log_file)
 
+```{r}
+checkcol <- function(tabledb, tablecsv) {
+  log_file <- file(filename, "a")
+  db_column_names <- dbListFields(my_db, tabledb)
+  csv_column_names <- colnames(tablecsv)
+  if (identical(db_column_names, csv_column_names)) {
+    message <- paste("\t All columns in", (deparse(substitute(table))), "are similar")
+    writeLines(message, log_file)
+    close(log_file)
+  } else {
+    writeLines("\t The columns are different", log_file)
+    close(log_file)
+    stop("Stopping workflow execution.")
+  }
+}
+
+compare_columns(tabledb, tablecsv)
+```
+
 # Make a function to check primary key 
 check_pk <- function(table, pk) {
   log_file <- file(filename, "a")
@@ -96,7 +115,6 @@ check_email <- function(table,col){
 customer <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
 ad <- readr::read_csv("data_upload/ad.csv", col_types=cols()) 
 promotion <- readr::read_csv("data_upload/promotion.csv", col_types=cols()) 
-g
 stock <- readr::read_csv("data_upload/stock.csv", col_types=cols()) 
 supplier <- readr::read_csv("data_upload/supplier.csv", col_types=cols()) 
 warehouse <- readr::read_csv("data_upload/warehouse.csv", col_types=cols()) 
@@ -104,6 +122,7 @@ order <- readr::read_csv("data_upload/order.csv", col_types=cols())
 sell <- readr::read_csv("data_upload/sell.csv", col_types=cols())
 stock <- readr::read_csv("data_upload/stock.csv", col_types=cols())
 promote <- readr::read_csv("data_upload/promote.csv", col_types=cols()) 
+my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"e_commerce.db")
 
 
 # Customer
