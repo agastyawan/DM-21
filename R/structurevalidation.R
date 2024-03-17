@@ -9,7 +9,6 @@ writeLines("STRUCTURE DATA VALIDATION LOG", log_file)
 writeLines(print(timestamp()), log_file)
 close(log_file)
 
-```{r}
 checkcol <- function(tabledb, tablecsv) {
   log_file <- file(filename, "a")
   db_column_names <- dbListFields(my_db, tabledb)
@@ -24,9 +23,6 @@ checkcol <- function(tabledb, tablecsv) {
     stop("Stopping workflow execution.")
   }
 }
-
-compare_columns(tabledb, tablecsv)
-```
 
 # Make a function to check primary key 
 check_pk <- function(table, pk) {
@@ -130,6 +126,7 @@ log_file <- file(filename, "a")
 writeLines("\n CUSTOMER", log_file)
 close(log_file)
 
+checkcol('customer', customer)
 check_pk(customer,"cust_id")
 check_date(customer,"cust_reg_date")
 check_email(customer, "cust_email")
@@ -150,6 +147,7 @@ check_ref <- function(table) {
 check_ref(customer)
 
 # Ad
+checkcol('ad', ad)
 log_file <- file(filename, "a")
 writeLines("\n AD", log_file)
 close(log_file)
@@ -164,6 +162,7 @@ check_num(ad,"action")
 check_num(ad,"revenue")
 
 # Order
+checkcol('order', order)
 log_file <- file(filename, "a")
 writeLines("\n ORDER", log_file)
 close(log_file)
@@ -188,6 +187,7 @@ check_fk(order, "promotion_id", promotion)
 
 
 # Product
+checkcol('product', product)
 log_file <- file(filename, "a")
 writeLines("\n PRODUCT", log_file)
 close(log_file)
@@ -198,6 +198,7 @@ check_num(product,"cost_price")
 check_fk(product, "w_id", warehouse)
 
 # Promotion
+checkcol('promotion', promotion)
 log_file <- file(filename, "a")
 writeLines("\n PRODUCT", log_file)
 close(log_file)
@@ -205,6 +206,7 @@ close(log_file)
 check_pk(promotion,"promotion_id")
 
 # Stock
+checkcol('stock', stock)
 log_file <- file(filename, "a")
 writeLines("\n STOCK", log_file)
 close(log_file)
@@ -215,6 +217,7 @@ check_fk(stock, "product_id", product)
 
 
 # Supplier
+checkcol('supplier', supplier)
 log_file <- file(filename, "a")
 writeLines("\n SUPPLIER", log_file)
 close(log_file)
@@ -222,6 +225,7 @@ close(log_file)
 check_pk(supplier,"s_id")
 
 # Warehouse
+checkcol('warehouse', warehouse)
 log_file <- file(filename, "a")
 writeLines("\n WAREHOUSE", log_file)
 close(log_file)
@@ -229,6 +233,7 @@ close(log_file)
 check_pk(warehouse,"w_id")
 
 # Sell
+checkcol('sell', sell)
 log_file <- file(filename, "a")
 writeLines("\n SELL", log_file)
 close(log_file)
@@ -237,10 +242,12 @@ check_fk(sell, "s_id", supplier)
 check_fk(sell, "product_id", product)
 
 # Promote
-
+checkcol('promote', promote)
 log_file <- file(filename, "a")
 writeLines("\n PROMOTE", log_file)
 close(log_file)
 
 check_fk(promote, "ad_id", ad)
 check_fk(promote, "product_id", product)
+
+dbDisconnect(my_db)
