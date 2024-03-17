@@ -319,5 +319,4 @@ Github workflow set up of the automated actions. This workflow will automaticall
     The workflow will run the data_load.R which will append the new_record to the database.
     
 **4.  Visualisation**
-
     The workflow will run the visualisation.R which will produce the figure and store it to the folder figure.
