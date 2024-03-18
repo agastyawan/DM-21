@@ -4,7 +4,7 @@ on:
 #  schedule:
 #    - cron: '0 */3 * * *' # Run every 3 hours
   push:
-    branches: [ development ]
+    branches: [ main ]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,7 +25,7 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          Rscript -e 'install.packages(c("ggplot2","dplyr","readr","RSQLite"))'
+          Rscript -e 'install.packages(c("ggplot2","dplyr","readr","RSQLite","lubridate","scales"))'
       - name: Execute R script validation2
         run: |
           Rscript R/structurevalidation.R
@@ -35,7 +35,7 @@ jobs:
       - name: Execute R script
         run: |
           Rscript R/data_load.R
-      - name: Execute R script Visualisation
+      - name: Visualisation
         run: |
           Rscript R/visualisation.R
       - name: Commit and push changes
@@ -49,4 +49,4 @@ jobs:
         uses: ad-m/github-push-action@v0.6.0
         with:
             github_token: ${{ secrets.DM21 }}
-            branch: development
+            branch: main
