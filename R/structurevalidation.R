@@ -117,6 +117,7 @@ sell <- readr::read_csv("data_upload/sell.csv", col_types=cols())
 stock <- readr::read_csv("data_upload/stock.csv", col_types=cols())
 promote <- readr::read_csv("data_upload/promote.csv", col_types=cols()) 
 product <- readr::read_csv("data_upload/product.csv", col_types=cols()) 
+product <- readr::read_csv("data_upload/product.csv", col_types=cols()) 
 my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"e_commerce.db")
 
 
