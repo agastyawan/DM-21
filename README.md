@@ -1,20 +1,26 @@
-# Group21
+# Data Management Group21
 
 ## Introduction
-Muse is a digital marketplace for musical instruments, appliances as well as production products. With the advancements in e-commerce and the overall digital retail environments, Muse’s purpose is to provide products for audiophiles, music producers and musicians. Unlike other local market leaders, Muse aims to only target the UK specifically, allowing a greater focus on customer satisfaction. Before moving on to the details of the report, it is essential to establish that we’ve made Muse to be a small but agile company, and have tried to create a dynamic and responsive model which can be used to sell products like guitars and bases, drums, keys, microphones, DJ equipment, cables, connectors, lighting and stage accessories, headphones, etc. We have also assumed that the company sells products as small as a guitar capo worth 5 pounds to full-size pianos worth 40,000 pounds, and the E-R diagram has been given thought and designed accordingly.
+Muse is a musical instrument and production e-commerce platform based in the UK which uses ETL processes to streamline data handling. An E-R diagram and SQL schema represent the structure of the database while the system is tested by synthetic data. Github workflows aided in Automation which enhanced efficiency. Sales data analysis and visualisation are showcased for business insights.
 
-## ER diagram
+## Database Design and Implementation
+### ER diagram
 The initial part of our database design was the Entity-Relationship diagram.While keeping practicality in focus, we created a structure which covers every aspect of a functional e-commerce database.
 
-For the ER diagram, we focused mainly on three types of relationships between entities. One to One. One to Many and Many to Many. An example of a One-to-One relationship could be between the entities Advertisement and Voucher (as shown in the ER diagram). For every one Advertisement, one voucher would be passed out. Another important aspect about the Entity is the primary key, i.e the unique identifier of any entity. The customer_id is the primary key for the customer entity which would give a unique identity to every customer allowing for them to be identified with ease when need be.
+In the E-R diagram, we mainly focused on three entity relationships: One-to-One, One-to-Many, and Many-to-Many. For instance, a One-to-One relationship exists between Promotion and Voucher entities. Each promotion corresponds to one voucher. A crucial aspect of an entity is its primary key, a unique identifier. For the customer entity, the primary key is the customer_id, providing a unique identity for each customer. 
 
-For a One-to-Many relationship, we could use an example of the entities, Product and Warehouse. There is only one Warehouse where all the product inventory is located. Finally, to give an example of a Many to Many Relationships, the relationship between the entities, Product and Supplier could be described. Multiple Products could be supplied from Multiple Suppliers.
+In a One-to-Many relationship, consider Product and Warehouse entities. All products are located in one warehouse. For a Many-to-Many relationship, consider Product and Supplier entities. Multiple suppliers can supply multiple products. 
 
-Furthermore another concept that has been applied in the diagram, specifically towards the customer entity is the Self Referencing process. The process in particular is “give referral” process. This process itself happens between customers, customers who buy a product from Muse have the potential to refer the platform to another, could be a friend, family member, band mate etc. This would lead to that customer converting the referred
+Additionally, the diagram applies the **Self Referencing** process, specifically to the customer entity. This process, “give referral”, occurs between customers. A customer who purchases a product from Muse can refer another potential customer to the platform.
 
-![ER Diagram](https://github.com/agastyawan/DM-21/blob/main/figure/ER-Final.png?raw=true)
+![ER Diagram](https://github.com/agastyawan/DM-21/blob/74eb2537e877a893b66fbaaaf9f41b48d6ac5a15/figure/ER%20Diagram.png)
 
-# SQL Database Schema
+### Logical Schema
+The E-R diagram showcases 5 relationships among which 3 were used for explanation. The ‘supplier’, ‘sells’ and ‘product’ relationship show how suppliers connect to products through relationships (r1 and r2). Comparably, for ‘stores in’ and ‘product’, warehouses connect to the products. The primary key for the ‘order’ relationship is made up of ‘customer_ID’, ‘product_ID’ as well as ‘Order_ID’.
+
+![Logical Schema](https://github.com/agastyawan/DM-21/blob/45a1ac2191d10aeb6f9fbf813cf2b18dcf025b05/figure/logical%20schema.png)
+
+## SQL Database Schema
 
 The SQL database schema conforms to the provided E-R diagram, ensuring consistency and readability through the use of lowercase letters for all names and columns. The **`e_commerce.db`** dataset has been generated and linked using the following code.
 
@@ -23,13 +29,15 @@ The SQL database schema conforms to the provided E-R diagram, ensuring consisten
 my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"e_commerce.db")
 ```
 
-## Create entities
+#### Create entities
 
-### Customer table
+##### Customer Table
 
-In the customer entity table, it is advisable to split the customer_name attribute into 'cust_first_name' and 'cust_last_name' to ensure flexibility and consistency within the database. Additionally, the cust_referral column acts as a self-referencing foreign key, linking to the customer table's primary key, cust_id. This column facilitates tracking customer referrals within the database by establishing relationships within the customer entity.
+For the customer entity table, customer_name was split into **`cust_first_name`** and **`cust_last_name`** increasing flexibility. Customer referrals were tracked using the **`cust_referral`** column being linked to cust_ID
 
-``` sql eval=FALSE
+```` sql
+```{sql, connection = my_db, eval=FALSE}
+--customer
 CREATE TABLE IF NOT EXISTS customer(
   cust_id INT PRIMARY KEY,
   cust_reg_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -45,62 +53,74 @@ CREATE TABLE IF NOT EXISTS customer(
   membership VARCHAR(10) CHECK (membership IN ('PLATINUM', 'GOLD', 'SILVER', 'BRONZE')),
   cust_birth_date DATE,
   cust_referral INT,
-  FOREIGN KEY (cust_referral) REFERENCES customer(cust_id)
-  );
+  FOREIGN KEY (cust_referral) REFERENCES customer(cust_id) --self referencing
+  
+);
 ```
+````
 
-### Product table
+##### Product Table
 
-To ensure adherence to the third normal form (3NF) and avoid transitive dependencies between non-prime attributes, the structure of the product name has been split into **`category_name`** and **`model_name`**. This separation allows for distinguishing the category of the product and avoids redundancy within the database. Each attribute is now functionally dependent only on the primary key, maintaining the integrity of the database schema.
+With adherence to 3NF, the product name is separated into **`category_name`** and **`model_name`**, removing transitive dependencies and redundancy, thus making sure each attribute is dependent on the primary key.
 
-``` sql eval=FALSE
+```` sql
+```{sql, connection = my_db , eval=FALSE}
+-- product
 CREATE TABLE IF NOT EXISTS product(
   product_id INT PRIMARY KEY,
   category_name VARCHAR(100),
   model_name VARCHAR(100),
   selling_price INT,
   cost_price INT,
-  product_desc VARCHAR(250),
   stock_qty INT
 );
 ```
+````
 
-### Supplier & Warehouse table
+##### Supplier & Warehouse Table
 
 The **`supplier`** and **`warehouse`** tables utilise the same address structure as the **`customer`** table, encompassing attributes such as **`zipcode`**, **`street_address`**, **`city`**, and **`county`**. This approach maintains consistency across the database schema.
 
-``` sql eval=FALSE
-CREATE TABLE IF NOT EXISTS supplier(
+```` sql
+```{sql, connection = my_db , eval=FALSE}
+-- supplier
+CREATE TABLE IF NOT EXISTS supplier (
   s_id INT PRIMARY KEY,
-  s_name VARCHAR(255),
-  s_zipcode VARCHAR(20),
+  s_name VARCHAR(100),
+  s_zipcode VARCHAR(10),
   s_street_address VARCHAR(255),
   s_city VARCHAR(100),
   s_county VARCHAR(20),
-  s_phone VARCHAR(20),
-  s_email VARCHAR(255)
+  s_phone VARCHAR(20) UNIQUE NOT NULL,
+  s_email VARCHAR(255) UNIQUE NOT NULL
 );
 ```
 
-``` sql eval=FALSE
-CREATE TABLE IF NOT EXISTS warehouse (
+```` sql
+```{sql, connection = my_db}
+-- warehouse 
+CREATE TABLE IF NOT EXISTS 'warehouse' (
   w_id INT PRIMARY KEY,
-  w_name VARCHAR(255) NOT NULL,
-  w_zipcode VARCHAR(20) NOT NULL,
+  w_name VARCHAR(100) NOT NULL,
+  w_zipcode VARCHAR(10) NOT NULL,
   w_street_address VARCHAR(255) NOT NULL,
   w_city VARCHAR(100),
-  w_county VARCHAR(25);
+  w_county VARCHAR(25)
+);
 ```
+````
 
-### Ad table
+##### Ad Table
 
 The **`ad`** table displays basic advertisement information data along with its performance metrics, including impression, click, and action. Impressions, clicks, and actions are represented as integers, while cost and revenue allow for two decimal places to calculate the pounds.
 
-``` sql eval=FALSE
+```` sql
+```{sql, connection = my_db , eval=FALSE}
+-- ad
 CREATE TABLE IF NOT EXISTS 'ad'(
   ad_id INT PRIMARY KEY,
-  media_name VARCHAR(255),
-  ad_type VARCHAR(255),
+  media_name VARCHAR(100),
+  ad_type VARCHAR(100),
   start_date DATE,
   end_date DATE,
   impression INT,
@@ -110,46 +130,62 @@ CREATE TABLE IF NOT EXISTS 'ad'(
   revenue DECIMAL(10, 2)
  );
 ```
+````
 
-### Promotion table
+##### Voucher & Promotion Table
 
-The 'promotion_rate' column is defined as a float to ensure that it can accommodate percentages.
-
-``` sql eval=FALSE
+```` sql
+```{sql, connection = my_db , eval=FALSE}
+-- promotion
 CREATE TABLE IF NOT EXISTS promotion (
  promotion_id INT PRIMARY KEY,  
- promotion_rate FLOAT
+ promotion_name VARCHAR (200)
 ); 
 ```
+````
 
-## Create relationship
+```` sql
+```{sql, connection = my_db , eval=FALSE}
+-- voucher
+CREATE TABLE IF NOT EXISTS voucher (
+ voucher_code VARCHAR PRIMARY KEY,  
+ voucher_rate FLOAT,
+ promotion_id INT,
+ FOREIGN KEY promotion_id REFERENCES promotion (promotion_id)
+); 
+```
+````
 
-### Order table
+#### Create Relationship
 
-This table incorporates the highest number of foreign keys from other entities, notably including **`order_id`**, **`cust_id`**, **`product_id`**, and **`promotion_id`**. Within this relationship, it has been ensured that **`order_id`**, **`cust_id`**, and **`product_id`** collectively constitute a composite primary key, thereby establishing the integrity and uniqueness of each record.
+##### Order Table
 
-``` sql eval=FALSE
+Within this relationship, it has been ensured that **`order_id`**, **`cust_id`**, and **`product_id`** collectively constitute a composite primary key, thereby establishing the integrity and uniqueness of each record.
+
+```` sql
+```{sql, connection = my_db , eval=FALSE}
+-- order
 CREATE TABLE IF NOT EXISTS "order" (
   "order_id" INT,
   "order_date" DATE,
   "quantity" INT NOT NULL,
   "cust_id" INT,
   "product_id" INT,
-  "payment_id" INT,
   "payment_method" VARCHAR,
-  "promotion_id" INT,
+  "voucher_code" INT,
   PRIMARY KEY ("order_id", "cust_id", "product_id"),
-  FOREIGN KEY ("payment_id") REFERENCES "payment" ("payment_id"),
   FOREIGN KEY ("cust_id") REFERENCES "customer" ("cust_id"),
   FOREIGN KEY ("product_id") REFERENCES "product" ("product_id"),
-  FOREIGN KEY ("promotion_id") REFERENCES "promotion" ("promotion_id")
+  FOREIGN KEY ("voucher_code") REFERENCES "voucher" ("voucher_code")
+);
 ```
+````
 
-### Sell table
+##### Sell Table
 
-The **`sell`** table comprises two foreign keys, **`s_id`** and **`product_id`**, indicating the association between suppliers and the products they sell. It is assumed that each supplier sells distinct products, ensuring clarity and accuracy in tracking product-supplier relationships within the database.
-
-``` sql eval=FALSE
+```` sql
+```{sql, connection = my_db , eval=FALSE}
+-- sell
 CREATE TABLE IF NOT EXISTS sell(
   s_id INT,
   product_id INT,
@@ -157,12 +193,13 @@ CREATE TABLE IF NOT EXISTS sell(
   FOREIGN KEY (s_id) REFERENCES supplier(s_id)
 );
 ```
+````
 
-### Stock table
+##### Stock Table
 
-The **`sku`** serves as the primary key of the **`stock`** table, indicating the **`product_id`** located in different warehouses.
-
-``` sql eval=FALSE
+```` sql
+```{sql, connection = my_db , eval=FALSE}
+-- stock
 CREATE TABLE IF NOT EXISTS stock(
   sku INT PRIMARY KEY,
   product_id INT,
@@ -171,12 +208,14 @@ CREATE TABLE IF NOT EXISTS stock(
   FOREIGN KEY (w_id) REFERENCES warehouse(w_id)
 );
 ```
+````
 
-### Promote table
+##### Promote Table
 
-The **`promote`** table facilitates a many-to-many relationship between products and advertisements. Each **`ad_id`** can promote several **`product_id`**s, and conversely, each **`product_id`** can be promoted by several **`ad_id`**s.
+```` sql
+```{sql, connection = my_db , eval=FALSE}
+-- promote
 
-``` sql eval=FALSE
 CREATE TABLE IF NOT EXISTS promote(
   product_id INT,
   ad_id INT,
@@ -184,25 +223,60 @@ CREATE TABLE IF NOT EXISTS promote(
   FOREIGN KEY (ad_id) REFERENCES ad (ad_id)
 );
 ```
-# Generate Synthetic data
+````
 
-In this section, various R packages and address datasets were utilised to generate synthetic data that conforms to the previously created database schema. Datasets for all tables have been successfully generated, aligning with the E-R diagram and SQL schema. Descriptions are provided for five representative datasets to illustrate their contents.
 
-## Personal data generation
+## Generating Datasets for Tables
+### Customer Data
 
-Synthetic personal data, including addresses and phone numbers, was generated using authentic UK postcode data with city and county details. Random street names were extracted from **`street_name.csv`** for address authenticity. British phone numbers starting with '07' and consisting of nine digits were generated to meet UK telecommunication standards.
+Customer data was generated with a specific date range for registration dates **`cust_reg_date`**, ensuring it falls after the customer's birthday **`cust_birth_date`**. Names and passwords were created using the **`generator`** package, with names divided into first and last names. Customer passwords were encrypted for security.
+``` r
+```{r , eval=FALSE}
+n <- 200
+set.seed(1)
+membership_type <- c("SILVER", "BRONZE", "GOLD", "PLATINUM")
 
-## Generating datasets for tables
+customer <- data.frame(
+  cust_id = seq(n),
+  cust_reg_date = r_date_of_births(n, start = as.Date("2018-01-01"), end = Sys.Date()),
+  cust_full_name = ch_name(n, locale = "en_GB", messy = FALSE),
+  cust_email = r_email_addresses(n),
+  cust_password = r_national_identification_numbers(n),
+  cust_phone = phone_number_custom(n),
+  postcode = sample(x = postcode, size = n, replace = TRUE),
+  cust_street_address = paste0(sample(x = st_name, size = n, replace = TRUE), " ", sample(1:99, n, replace = TRUE)),
+  membership = sample(x = membership_type, size = n, replace = TRUE),
+  cust_birth_date = r_date_of_births(n, start = as.Date("1970-01-01"), end = as.Date("2010-01-01")),
+  cust_referral = sample(0:n, size = n, replace = TRUE),
+  stringsAsFactors = FALSE
+)
 
-### Customer data
+# Split the first name and last name
+customer$cust_first_name <- sapply(strsplit(as.character(customer$cust_full_name), " "), function(x) paste(x[-length(x)], collapse = " "))
+customer$cust_last_name <- sapply(strsplit(as.character(customer$cust_full_name), " "), function(x) tail(x, 1))
 
-Customer data was generated with a specific date range for registration dates **`cust_reg_date`**, ensuring it falls after the customer's birthday **`cust_birth_date`**. Names and passwords were created using the **`generator`** package, with names divided into first and last names. Customer passwords were encrypted for security. Zip codes and addresses were generated utilising the mentioned dataset.
+# Customer password
+customer$cust_password <- digest(customer$cust_password, algo = "md5", serialize = FALSE)
+
+# Customer address
+customer <- merge(customer, address_db, by = "postcode", all.x = TRUE)
+customer$cust_zipcode <- customer$postcode
+customer$cust_city <- customer$town
+customer$cust_county <- customer$country_string
+
+# Select customer data
+customer <- select(customer, cust_id, cust_reg_date, cust_last_name, cust_first_name, cust_email, cust_password, cust_phone, cust_zipcode, cust_street_address, cust_city, cust_county, membership, cust_birth_date, cust_referral)
+
+# Generate CSV data
+write.csv(customer, file = "customer.csv", row.names = FALSE)
+```
 
 | cust_id | cust_reg_date | cust_last_name | cust_first_name |
 |---------|---------------|----------------|-----------------|
 | 1       | 2020-10-14    | Clarke-Green   | Rita            |
 | 2       | 2019-11-11    | Burrows        | Karl            |
 | 3       | 2023-12-18    | Howard         | Holly           |
+
 
 
 | cust_password                    |
@@ -212,6 +286,7 @@ Customer data was generated with a specific date range for registration dates **
 | 2e06cf4fda81ae33015430fed51f5127 |
 
 
+
 | cust_zipcode | cust_street_address | cust_city | cust_county |
 |--------------|---------------------|-----------|-------------|
 | W3           | Stanley Road 51     | Ealing    | England     |
@@ -219,9 +294,40 @@ Customer data was generated with a specific date range for registration dates **
 | SG19         | The Green 39        | Everton   | England     |
 
 
-### Product data
 
-In the product data, 30 entries are distributed among 10 distinct categories. To ensure consistency, the structure of the 'model_name' attribute across all products has been standardised. The **`cost_price`** of each product is randomly assigned within a range of 85% to 90% of the **`selling_price`**, maintaining variability while adhering to predetermined criteria.
+### Product Data
+
+To ensure consistency, the structure of the 'model_name' attribute across all products has been standardised. The **`cost_price`** of each product is randomly assigned within a range of 85% to 90% of the **`selling_price`**, maintaining variability while adhering to predetermined criteria.
+
+``` r
+```{r , eval=FALSE}
+n <- 30
+set.seed(1)
+
+# Generate product data frame
+product <- data.frame(
+  product_id = 1:n,
+  category_name = sample(c('guitar', 'drum', 'base', 'keyboards', 'pianos', 'saxophones', 'flute', 'violin', 'cello', 'harp', 'chimes', 'french horn', 'trumpet', 'bagpipe', 'microphone', 'cable', 'connector', 'lightning', 'headphone'), n, replace = TRUE),
+  model_name = sapply(1:30, function(x) paste0(sample(letters, 2, replace = TRUE), sample(0:9, 2, replace = TRUE), collapse = '')),
+  selling_price = NA,  # Initialize selling_price column
+  stock_qty = sample(30:300, n, replace = TRUE)
+)
+
+# Set selling price based on category_name
+product$selling_price <- ifelse(product$category_name == "harp", 
+                                sample(1100:3000, n, replace = TRUE), 
+                                ifelse(product$category_name %in% c("guitar", "base", "flute", "violin", "cello", "chimes", "french horn", "trumpet", "bagpipe"), 
+                                       sample(1000:2599, n, replace = TRUE), 
+                                       sample(50:999, n, replace = TRUE)))
+
+# Add cost_price column
+product$cost_price <- ifelse(product$category_name == 'pianos', product$selling_price * 0.90,
+                             ifelse(product$category_name %in% c('guitar', 'drum', 'base', 'keyboards', 'saxophones', 'flute', 'violin', 'cello', 'harp', 'chimes', 'french horn', 'trumpet', 'bagpipe'), product$selling_price * 0.85,
+                                    product$selling_price * 0.90))
+
+# Save product.csv
+write.csv(product, file = "product.csv", row.names = FALSE)
+```
 
 
 | product_id | category_name | model_name | selling_price | stock_qty | cost_price |
@@ -231,15 +337,115 @@ In the product data, 30 entries are distributed among 10 distinct categories. To
 | 3          | guitar        | y8h6       | 1348          | 106       | 1145.80    |
 
 
-### Ad data
+### Promotion Data
 
-The company employs six types of media for advertising, with each 'ad_name' derived from the corresponding **`ad_type`**. We've verified that the **`end_date`** of each ad falls after its **`start_date`**. Moreover, in accordance with industry standards, constraints have been applied, ensuring that **`impression`** exceeds **`click`**, which in turn exceeds **`action`**. Specific conditions, such as **`click`** being less than 10% of **`impression`**, are enforced.
+``` r
+```{r, eval=FALSE}
+n <- 30
+
+# Set seed
+set.seed(2)
+
+# Generate promotion IDs
+promotion_id <- seq(n)
+
+# Generate promotion rate convert to percentage
+promotion_name <- sample(c('BirthdayBonus', 'VIP', 'Referral', 'SpringSale', 'BackTOSchool', 'MerryChristmas', 'WelcomeNewYear', 'ValentineValue', 'NewcommerWelcome', 'EasterSurprise'), 30, replace = TRUE)
+
+# Combine data
+promotion <- data.frame(promotion_id, promotion_name = promotion_name)
+
+# Save the data frame to a CSV file
+write.csv(promotion, "promotion.csv", row.names = FALSE)
+```
+
+
+### Voucher Data
+
+``` r
+```{r, eval=FALSE}
+n <- 30
+
+# Set seed
+set.seed(2)
+
+# Generate promotion IDs
+voucher_code <- paste0("UK", sprintf("%02d", 1:30))
+
+# Generate promotion rate convert to percentage
+voucher_rate <- sample(c('0.05', '0.10', '0.15', '0.20', '0.25', '0.30'), 30, replace = TRUE)
+
+# Combine data
+voucher <- data.frame(
+  voucher_code = voucher_code,
+  voucher_rate = voucher_rate,
+  promotion_id = sample(promotion$promotion_id, n, replace = TRUE),
+  stringsAsFactors = FALSE
+)
+
+# Save the data frame to a CSV file
+write.csv(voucher, "voucher.csv", row.names = FALSE)
+```
+
+
+### Ad Data
+
+The company uses six media types for advertising, with ‘ad_name’ based on ad_type. Industry standards dictate that **`impression`** should surpass **`click`**, which should exceed action. Conditions like **`click`** being less than 10% of **`impression`** are enforced.
+
+``` r
+```{r, eval=FALSE}
+n <- 200
+
+# Define the function to generate synthetic data with specified conditions
+generate_synthetic_data <- function(n) {
+  media_type <- c("Website", "Facebook", "Instagram", "Tiktok", "Google", "Flyer")
+  ad_type <- c("Discount", "Cut Off", "Promotion", "Bonus", "Freebies")
+  
+  ad_data <- data.frame(
+    ad_id = seq(n),
+    media_name = sample(x = media_type, size = n, replace = TRUE),
+    ad_type = paste0(sample(x = ad_type, size = n, replace = TRUE)),
+    start_date = as.Date(sample(seq(as.Date("2018-01-01"), Sys.Date(), by = "day"), n, replace = TRUE)),
+    impression = sample(100:1000, n, replace = TRUE),
+    stringsAsFactors = FALSE
+  )
+  
+  ad_data$end_date <- ad_data$start_date + sample(1:90, n, replace = TRUE)
+  ad_data$impression <- sample(1000:50000, n, replace = TRUE)
+  ad_data$cost <- sample(10:1500, n, replace = TRUE)
+  ad_data$revenue <- ad_data$cost * sample(seq(0.1, 5, by = 0.01), n, replace = TRUE)
+  ad_data$click <- round(ad_data$impression * runif(n, 0.05, 0.1))
+  ad_data$action <- round(ad_data$click * runif(n, 0.05, 0.2))
+  
+  # Filter out rows based on conditions
+  ad <- ad_data %>%
+    filter(impression >= 1000,
+           click < impression * 0.1,
+           action < click * 0.2,
+           cost >= click * 0.3,
+           cost <= click * 2,
+           revenue >= cost * 0.1,
+           revenue <= cost * 5)
+  
+  return(ad_data)
+}
+
+
+# Generate synthetic data
+n <- 200
+ad <- generate_synthetic_data(n)
+
+# Write data to CSV
+write.csv(ad, file = "ad.csv", row.names = FALSE)
+```
+
 
 | ad_id | media_name | ad_type   | start_date |   end_date |
 |------:|:-----------|:----------|-----------:|-----------:|
 |     1 | Google     | Promotion | 2020-09-29 | 2020-11-12 |
 |     2 | Flyer      | Promotion | 2021-04-20 | 2021-07-06 |
 |     3 | Flyer      | Cut Off   | 2018-10-26 | 2018-11-18 |
+
 
 
 | impression | cost | revenue | click | action |
@@ -249,9 +455,80 @@ The company employs six types of media for advertising, with each 'ad_name' deri
 |      41469 |   34 |  151.64 |  2643 |    382 |
 
 
-### Warehouse data
 
-The company operates one warehouse for each region of England, Wales, and Scotland. The warehouse names **`w_name`** are derived from the names of the respective regions (counties). For example, warehouse 'Eng01' corresponds to the region of England and has address information based on England.
+### Supplier Data
+
+``` r
+```{r , eval=FALSE}
+n <- 10
+s_phone <- phone_number_custom(n)
+s_email <- r_email_addresses(n)
+
+supplier <- data.frame(
+  s_id = seq(n),
+  s_name = c('Harmony Haven Instruments', 'Melody Masters Music Emporium', 'Rhythmic Resonance Supplies', 'Crescendo Corner', 'Sonic Spectrum Distributors', 'Tempo Treasures Inc.', 'Aria Attic Instruments', 'Virtuoso Ventures', 'Serenade Suppliers', 'Allegro Accessories Outlet'),
+  postcode = sample(x = postcode, size = n, replace = TRUE),
+  s_street_address = paste0(sample(x = st_name, size = n, replace = TRUE), " ", sample(1:10, n, replace = TRUE)),
+  s_phone = s_phone,
+  s_email = s_email
+)
+
+supplier <- merge(supplier, address_db, by = "postcode", all.x = TRUE)
+supplier$s_zipcode <- supplier$postcode
+supplier$s_city <- supplier$town
+supplier$s_county <- supplier$country_string
+
+supplier <- select(supplier, s_id, s_name, s_zipcode, s_street_address, s_city, s_county, s_phone, s_email)
+
+# Save supplier.csv
+write.csv(supplier, file = "supplier.csv", row.names = FALSE)
+```
+
+
+### Warehouse Data
+
+The company operates one warehouse for each region of England, Wales, and Scotland. The warehouse names **`w_name`** are derived from the names of the respective regions (counties).
+
+``` r
+```{r, eval=FALSE}
+n <- 3
+
+# Create warehouse data frame with three rows
+warehouse <- data.frame(
+  w_id = seq(n),
+  w_name = c('Eng01', 'Wales01', 'Scot01'),
+  w_street_address = paste0(sample(x = st_name, size = n, replace = TRUE), " ", sample(1:10, n, replace = TRUE)),
+  w_county = c('England', 'Wales', 'Scotland'),
+  stringsAsFactors = FALSE  # Avoids creating factors for character variables
+)
+
+# Sample postcodes for each region
+sampled_postcodes <- sapply(warehouse$w_county, function(county) {
+  subset_postcodes <- address_db$postcode[address_db$country_string == county]
+  if (length(subset_postcodes) > 0) {
+    return(sample(subset_postcodes, 1))
+  } else {
+    return(NA)  # Handle the case where there are no postcodes for the specified county
+  }
+})
+
+# Add sampled postcodes to the warehouse data
+warehouse$postcode <- sampled_postcodes
+
+# Assuming address_db is a data frame or tibble with columns w_zipcode, w_city, etc.
+# Merge with address_db
+warehouse <- merge(warehouse, address_db, by = "postcode", all.x = TRUE)
+warehouse$w_zipcode <- warehouse$postcode
+warehouse$w_city <- warehouse$town
+
+# Select relevant columns
+warehouse <- warehouse %>%
+  select(w_id, w_name, w_zipcode, w_street_address, w_city, w_county)
+
+# Save warehouse.csv
+write.csv(warehouse, file = "warehouse.csv", row.names = FALSE)
+```
+
 
 
 | w_id     | w_name   | w_zipcode | w_street_address | w_city     | w_county |
@@ -261,60 +538,733 @@ The company operates one warehouse for each region of England, Wales, and Scotla
 | 2        | Wales01  | SA6       | New Street 4     | Morriston  | Wales    |
 
 
-### Relationship data
 
-Relationship data is generated from many-to-many (M:N) relationships between entities, necessitating that the foreign key data is derived from existing entity data. For instance, in the order data, **`cust_id`**, **`product_id`**, and **`promotion_id`** are referenced from previously generated data. Furthermore, to ensure consistency, for orders sharing the same **`order_id`**, the **`payment_method`** has been standardized, as each order is associated with only one payment method.
+### Promote Data
+
+``` r
+```{r, eval=FALSE}
+n <- 200
+
+# Create promote data frame
+promote <- data.frame(ad_id = sample(ad$ad_id, n, replace = TRUE),
+                      product_id = sample(product$product_id, n, replace = TRUE),
+                      stringsAsFactors = FALSE)
+
+# Save promote.csv
+write.csv(promote, file = "promote.csv", row.names = FALSE)
+```
 
 
-| order_id | cust_id  | product_id | promotion_id | quantity | payment_method |
+### Stock Data
+
+``` r
+```{r, eval=FALSE}
+# Set seed for reproducibility
+set.seed(1)
+
+# Create stock data frame
+stock <- data.frame(
+  sku = 1:30,  # Assuming 30 rows as there are 30 products
+  product_id = sample(product$product_id, 30, replace = TRUE),
+  w_id = sample(warehouse$w_id, 30, replace = TRUE)
+)
+
+# Save stock.csv
+write.csv(stock, file = "stock.csv", row.names = FALSE)
+```
+
+
+
+### Order Data
+
+Order data was produced within a specific date range, with more data in certain periods to highlight monthly trends. We made sure **`cust_id`**, **`product_id`**, and **`voucher_code`** were referenced from previously generated data. Also, for orders with identical order_id, we standardized the payment_method since each order can only use one payment method.
+
+``` r
+```{r, eval=FALSE}
+library(dplyr)
+
+n <- 500
+
+# Generate order IDs
+order_id <- seq(n)
+
+# Generate customer order dates
+start_date <- as.Date("2022-01-01")
+end_date <- as.Date("2024-12-31")
+
+# Generate more orders in March, September, and December
+extra_dates <- c(
+  sample(seq(as.Date("2024-03-01"), as.Date("2024-03-31"), by = "day"), size = 30, replace = TRUE),
+  sample(seq(as.Date("2024-09-01"), as.Date("2024-09-30"), by = "day"), size = 30, replace = TRUE),
+  sample(seq(as.Date("2024-12-01"), as.Date("2024-12-31"), by = "day"), size = 50, replace = TRUE),
+  sample(seq(as.Date("2023-03-01"), as.Date("2023-03-31"), by = "day"), size = 25, replace = TRUE),
+  sample(seq(as.Date("2023-09-01"), as.Date("2023-09-30"), by = "day"), size = 20, replace = TRUE),
+  sample(seq(as.Date("2023-12-01"), as.Date("2023-12-31"), by = "day"), size = 40, replace = TRUE),
+  sample(seq(as.Date("2022-03-01"), as.Date("2022-03-31"), by = "day"), size = 20, replace = TRUE),
+  sample(seq(as.Date("2022-09-01"), as.Date("2022-09-30"), by = "day"), size = 15, replace = TRUE),
+  sample(seq(as.Date("2022-12-01"), as.Date("2022-12-31"), by = "day"), size = 30, replace = TRUE)
+)
+
+order_date <- c(sample(seq(start_date, end_date, by = "day"), size = 240), extra_dates)
+
+# Generate quantities as three-digit numbers that are multiples of 5
+quantity <- sample(1:5, size = n, replace = TRUE)
+
+# Generate customer IDs
+cust_id <- sample(customer$cust_id, n, replace = TRUE)
+
+# Generate product IDs
+product_id <- sample(product$product_id, n, replace = TRUE)
+
+# Generate payment methods (assuming 1 = Credit Card, 2 = Debit Card, 3 = Cash)
+# Generate a consistent payment method for each unique order_id, cust_id, and product_id
+payment_methods <- c("Credit Card", "Debit Card", "Paypal")
+payment_method <- rep(payment_methods, length.out = n)
+
+# Generate promotion IDs
+voucher_code <- sample(voucher$voucher_code, n, replace = TRUE)
+
+# Combine data
+order <- data.frame(
+  order_id = order_id,
+  order_date = order_date,
+  quantity = quantity,
+  cust_id = cust_id,
+  product_id = product_id,
+  payment_method = payment_method,
+  voucher_code = voucher_code
+)
+
+# Save the data frame to a CSV file
+write.csv(order, "order.csv", row.names = FALSE)
+```
+
+
+| order_id | cust_id  | product_id | voucher_code | quantity | payment_method |
 |----------|----------|------------|--------------|----------|----------------|
-| 1        | 93       | 19         | 3            | 5        | Credit Card    |
-| 2        | 24       | 24         | 2            | 2        | Debit Card     |
-| 3        | 3        | 13         | 2            | 3        | Paypal         |
+| 1        | 93       | 19         | UK01         | 5        | Credit Card    |
+| 2        | 24       | 24         | UK02         | 2        | Debit Card     |
+| 3        | 3        | 13         | UK03         | 3        | Paypal         |
 
-## Data Pipeline Generation
+### Sell Data
 
-### Github Repository and Workflow Setup
+``` r
+```{r, eval=FALSE}
+n<-50
 
-Github Repository can be accessed through <https://github.com/agastyawan/DM-21>.
+# Set seed (optional)
+set.seed(123)
+
+# Combine data
+sell <- data.frame(
+  s_id = sample(supplier$s_id, n, replace = TRUE),
+  product_id = sample(product$product_id, n, replace = TRUE)
+)
+
+# Save the data frame to a CSV file
+write.csv(sell, "sell.csv", row.names = FALSE)
+```
+
+##  Data Import and Quality Assurance
+The synthetic data will be validated automatically before can be imported with github action. This part consist of 3 step:
+
+
+1.  Structure validation
+
+    The script will check data in data_upload whether:
+
+    -   The structure of data is similar with database
+
+    -   The primary key is unique
+
+    -   There is no duplicated value
+
+    -   The foreign key is well referenced
+
+    -   The data_type is similar with the schema
+
+
+``` r
+    ``` {r, #structurevalidation, eval=FALSE}
+    # Make a log file
+    filename <- file.path("log", paste("log", format(Sys.time(), "%y%m%d_%H%M"), ".txt"))
+    log_file <- file(filename, "w")
+    writeLines("STRUCTURE DATA VALIDATION LOG", log_file)
+    writeLines(print(timestamp()), log_file)
+    close(log_file)
+
+    # Make a function to check the variable
+    checkcol <- function(tabledb, tablecsv) {
+      log_file <- file(filename, "a")
+      db_column_names <- sort(dbListFields(my_db, tabledb))
+      csv_column_names <- sort(colnames(tablecsv))
+      if (identical(db_column_names, csv_column_names)) {
+        message <- paste("\t All columns in", (deparse(substitute(table))), "are similar")
+        writeLines(message, log_file)
+        close(log_file)
+      } else {
+        writeLines("\t The columns are different", log_file)
+        close(log_file)
+        stop("Stopping workflow execution.")
+      }
+    }
+
+    # Make a function to check primary key 
+    check_pk <- function(table, pk) {
+      log_file <- file(filename, "a")
+      if (sum(duplicated(table[[pk]])) != 0) {
+        message <- paste("\t Primary key in", (deparse(substitute(table))), "is not unique")
+        writeLines(message, log_file)
+        close(log_file)
+        stop("Stopping workflow execution.")
+      } else {
+        writeLines("\t Sufficient primary key", log_file)
+        close(log_file)
+      }
+    }
+
+    duprec <- function(tablecsv, filename) {
+      log_file <- file(filename, "a")
+      if (sum(duplicated(tablecsv)) == 0) {
+        message <- paste("\t There is no duplicated data in", deparse(substitute(tablecsv)))
+        writeLines(message, log_file)
+        close(log_file)
+      } else {
+        writeLines("\t There is duplicated data", log_file)
+        close(log_file)
+        stop("Stopping workflow execution.")
+      }
+    }
+
+    # Make a function to check date format
+    IsDate <- function(mydate, date.format = "%y-%m-%d") {
+      tryCatch(!is.na(as.Date(mydate, date.format)),  
+               error = function(err) {FALSE})  
+    }
+
+    check_date <- function(table, coldate) {
+      log_file <- file(filename, "a")
+      if (sum(IsDate(table[[coldate]])) == nrow(table)) {
+        message <- paste("\t The data type in ", deparse(substitute(col))," is sufficient")
+        writeLines(message, log_file)
+        close(log_file)
+      } else {
+        message <- paste("\t The data type in ", deparse(substitute(col))," is invalid")
+        writeLines(message, log_file)
+        close(log_file)
+        stop("Stopping workflow execution.")
+      }
+    }
+
+    # Make a function to check foreign key
+    check_fk <- function(table,fk,ref) {
+      log_file <- file(filename, "a")
+      if(all(table[[fk]] %in% ref[[fk]])) {
+        message <- paste("\t The foreign key are well-connected ")
+        writeLines(message, log_file)
+        close(log_file)
+      } else {
+        message <- paste("\t There are some invalid foreign key")
+        writeLines("\t invalid reference foreign key", log_file)
+        close(log_file)
+        stop("Stopping workflow execution.")
+      }
+    }
+
+    # Make a function to check numeric datatype
+    check_num <- function(table,col) {
+      log_file <- file(filename, "a")
+      if (all(sapply(table[[col]], is.numeric))) {
+        message <- paste("\t The data type in ", deparse(substitute(col))," is sufficient")
+        writeLines(message, log_file)
+        close(log_file)
+      } else {
+        message <- paste("\t The data type in ", deparse(substitute(col))," is sufficient")
+        writeLines(message, log_file)
+        close(log_file)
+        stop("Stopping workflow execution.")
+      }
+    }
+
+    isValidEmail <- function(x) {
+      grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", as.character(x))
+    }
+    ```
+````
+
+2.  Data validation
+
+     	The script will check the new records in data_upload compared to the records in database. If there is new record, it will generate new csv file in new_record folder. For example the customer data:
+
+``` r
+    ``` {r, #validationdata, eval=FALSE}
+    customer_db <- dbGetQuery(my_db, "SELECT * FROM customer")
+    customer_push_data <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
+    new_customer_records <- anti_join(customer_push_data, customer_db, by = "cust_id")
+    write.csv(new_customer_records, file = "new_record/customer.csv", row.names = FALSE)
+    ```
+````
+
+3.  Load data
+
+     	The script will append the new_record to the database. For example customer:
+
+``` r
+    ``` {r, #load_data, eval=FALSE}
+    customer_data <- readr::read_csv("new_record/customer.csv", col_types=cols(
+      cust_reg_date = col_character(),
+      cust_birth_date = col_character()
+    )) 
+
+    my_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e_commerce.db")
+
+    RSQLite::dbWriteTable(my_connection,"customer",customer_data, append = TRUE, row.names = FALSE)
+    ```
+````
+
+
+# Data Pipeline Generation
+
+## Github Repository and Workflow Setup
+
+Github Repository can be accessed through [link](https://github.com/agastyawan/DM-21){.uri}.
 
 The repository has been made so that every group member can collaborate on it together by using push and pull method.
 
 The explanation for each folder is as follows:
 
-| No  | FolderName          | Description                                                                                                                                                                          |
-|-----|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1   | .github/workflow    | folder to store the GitHub workflows                                                                                                                                                 |
-| 2   | R                   | folder to store the R script to do structure validation, content validation, load data, and visualisation                                                                            |
-| 3   | data_upload         | folder to upload new data (csv format) which will be injected after validated                                                                                                        |
-| 4   | database            | folder to store the database                                                                                                                                                         |
-| 5   | figure              | folder to store images which are the result of visualisation.R                                                                                                                       |
-| 6   | log                 | folder to store the log file which explains about the activity (version-control on our project) on Github e.g. the result of validation and load data.                               |
-| 7   | new_record          | If there are new records in data_upload, the script will generate csv file that contains the new records.                                                                            |
+1.  *github/workflow*: folder to store the GitHub workflows
+
+2.  *R*: folder to store the R script to do structure validation, content validation, load data, and visualisation
+
+3.  *data_upload* : forlder to upload new data (csv format) which will be injected after validated 
+
+4.  *database* : folder to store the database
+
+5.  *figure* : folder to store images which are the result of visualisation.
+
+6.  *log* : folder to store the log file which explains about the activity on Github e.g. the result of validation and load data. The logfile can also be used to do version-control on our project.
+
+7.  *new_record* : the content validation script will compare the data from database and data_upload. If there are new records in data_upload, the script will generate csv file that contains the new records.
 
 
 We create two branches: Main and Development. The main branches used as the final version of the project, meanwhile the development branch is used as testing the workflow before we pushed it to the main branch.
+
 We compare the db schema in the development branch after merging the data to the db schema in the main branch to ensure that db schema has not changed.
 
-### Github Repository and Workflow Setup
 
-Github workflow set up of the automated actions. This workflow will automatically run the following action every time new data is committed:
+## GitHub Actions for Continuous Integration
 
-**1.  Structure validation**
-    The workflow will run the structurevalidation.R which will check the data in data_upload:
-      The structure of data is similar with database
-      The primary key is unique
-      There is no duplicated value
-      The foreign key is well referenced
-      The data_type is similar with the schema
-    Every step will be recorded in the logfile.
+Github workflow set up of the automated actions. The code in Github workflow can be seen as follows:
 
-**2.  Data validation**
-    The workflow will run the validation.R which will check the new records in data_upload compared to the records in database. If there is new record, it will generate new csv file in new_record folder. 
-    Every step will be recorded in the logfile.
+``` r
+``` {#github.workflow eval="FALSE"}
+ name: DM-21
 
-**3.  Load data**
-    The workflow will run the data_load.R which will append the new_record to the database.
-    
-**4.  Visualisation**
-    The workflow will run the visualisation.R which will produce the figure and store it to the folder figure.
+on:
+#  schedule:
+#    - cron: '0 */3 * * *' # Run every 3 hours
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup R environment
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.2.0'
+      - name: Cache R packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-r-${{ hashFiles('**/lockfile') }}
+          restore-keys: |
+            ${{ runner.os }}-r-
+      - name: Install packages
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          Rscript -e 'install.packages(c("ggplot2","dplyr","readr","RSQLite"))'
+      - name: Execute R script validation2
+        run: |
+          Rscript R/structurevalidation.R
+      - name: Execute R script validation
+        run: |
+          Rscript R/validation.R
+      - name: Execute R script
+        run: |
+          Rscript R/data_load.R
+      - name: Execute R script Visualisation
+        run: |
+          Rscript R/visualisation.R
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "agastyawan"
+          git config --global user.email "agastyawan@gmail.com"
+          git add .
+          git commit -m "Write new data"
+          git push
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+            github_token: ${{ secrets.DM21 }}
+            branch: main
+```
+
+
+
+This workflow will automatically run the validation, dataload, & visualisation  every time new data is committed. Every step will be recorded in the logfile.
+![log file](https://github.com/agastyawan/DM-21/blob/a31c7d9e97f74c9e04196eab8fbdb8d79c80300c/figure/logfile.png)
+
+
+# Data Analysis & Reporting
+## Data Analysis
+
+### Top 10 Products
+
+Data analysis is a crucial aspect for businesses, enabling them to understand their customers and make informed decisions. By leveraging SQL, we can effectively analyse the available data. Our initial focus will be on identifying the top 10 best-selling products. This approach allows us to derive insights from past trends and make accurate predictions for the future.
+
+```` r
+```{r connect}
+my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"e_commerce.db")
+```
+
+```` sql
+```{sql connection=my_db}
+SELECT product_id, category_name, model_name, selling_price, cost_price
+FROM product
+WHERE selling_price >= 2000
+ORDER BY selling_price DESC;
+```
+````
+
+
+### Top 10 Customers and their Order Quantity
+
+```` sql
+```{sql connection=my_db}
+SELECT cust_id, SUM(quantity) AS total_quantity
+FROM 'order'
+GROUP BY cust_id
+ORDER BY total_quantity DESC
+LIMIT 10;
+```
+````
+
+### Top Selling Product
+
+We conduct further analysis using SQL to identify the most frequently ordered product. This is crucial for understanding customer demand and ensuring our inventory remains up-to-date.
+
+```` sql
+```{sql connection=my_db}
+SELECT o.product_id,p.category_name,SUM(o.quantity) AS total_quantity
+FROM 'order' AS o
+JOIN 'product' AS p
+ON o.product_id = p.product_id
+GROUP BY p.product_id
+ORDER BY total_quantity DESC
+LIMIT 10;
+```
+````
+
+### Least Selling Product
+
+```` sql
+```{sql connection=my_db}
+SELECT o.product_id,p.category_name,SUM(o.quantity) AS total_quantity
+FROM 'order' AS o
+JOIN 'product' AS p
+ON o.product_id = p.product_id
+GROUP BY p.product_id
+ORDER BY total_quantity ASC
+LIMIT 10;
+```
+````
+
+
+### Total Revenue Generated from each Media Type
+
+```` sql
+```{sql connection=my_db}
+SELECT media_name, SUM(revenue) AS total_revenue
+FROM ad
+GROUP BY media_name
+ORDER BY total_revenue DESC
+LIMIT 5;
+```
+````
+
+### Sales
+
+The total sales is calculated by multiplying of the total quantity of each of the products by its selling price.
+
+1\. finding out the total quantity per **`product_ID`**
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS total_quantity;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW IF NOT EXISTS total_quantity AS
+SELECT product_id, SUM(quantity) AS quantity_total
+FROM 'order'
+GROUP BY product_id
+ORDER BY quantity_total DESC
+```
+````
+
+```` sql
+```{sql connection=my_db}
+SELECT *
+FROM total_quantity
+```
+````
+
+2.  Multiplying the total quantity with the selling price of the product
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS sales;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW IF NOT EXISTS sales AS
+SELECT tq.product_id, tq.quantity_total, p.selling_price, (tq.quantity_total * p.selling_price) AS total_sales
+FROM total_quantity as tq
+JOIN product as p
+ON tq.product_id = p.product_id
+GROUP BY tq.product_id, tq.quantity_total, p.selling_price
+ORDER BY total_sales DESC
+;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+SELECT *
+FROM sales
+```
+````
+
+### Revenue
+
+The total revenue is calculated by subtracting the selling price and cost price. As our e-commerce company provided promotional code to each of our customers based on their **`order_id`**, therefore the promotional rate is also been subtracted from the revenue.
+
+1.  selling price minus the cost price and saving the result as **`revenue_product`**
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS revenue;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW revenue AS
+SELECT product_id, selling_price, cost_price, (selling_price - cost_price) AS revenue_product
+FROM product
+GROUP BY product_id
+ORDER BY revenue_product DESC
+```
+````
+
+```` sql
+```{sql connection=my_db}
+
+SELECT *
+FROM revenue
+```
+````
+
+2.  multiplying the number of products ordered by **`revenue_product`**
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS revenue_before_promo;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW revenue_before_promo AS
+SELECT r.product_id, s.quantity_total, r.revenue_product, (s.quantity_total * r.revenue_product) AS revenue_calculated
+FROM revenue as r
+JOIN sales as s
+ON r.product_id = s.product_id
+ORDER BY revenue_calculated DESC
+```
+````
+
+```` sql
+```{sql connection=my_db}
+
+SELECT *
+FROM revenue_before_promo
+```
+````
+
+3.  Joining the promotion data with the view created before in order merge the promotional rate based on **`product_id`**
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS revenue_with_promo;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW revenue_with_promo as
+SELECT rbp.revenue_product, rbp.product_id , o.cust_id , o.order_date, o.order_id, o.voucher_code
+FROM revenue_before_promo as rbp
+JOIN 'order' as o
+ON rbp.product_id = o.product_id
+```
+````
+
+```` sql
+```{sql connection=my_db}
+SELECT * 
+FROM revenue_with_promo
+```
+````
+
+4.  Finally subtracting the promotional rate from the actual revenue calculated per product
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS revenue_w_promo;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW revenue_w_promo AS
+SELECT rwp.revenue_product, rwp.product_id, rwp.cust_id, 
+       strftime('%Y', rwp.order_date) AS order_year, 
+       strftime('%m', rwp.order_date) AS order_month, 
+       strftime('%d', rwp.order_date) AS order_day, 
+       rwp.order_date, rwp.order_id, rwp.voucher_code, v.voucher_rate, 
+       ROUND((rwp.revenue_product * (1- v.voucher_rate)),2) AS revenue
+FROM revenue_with_promo AS rwp
+JOIN voucher AS v
+ON rwp.voucher_code = v.voucher_code
+ORDER BY revenue DESC
+```
+````
+
+```` sql
+```{sql connection=my_db}
+SELECT * 
+FROM revenue_w_promo
+```
+````
+
+### Calculating Revenue based on Year
+
+To gain a more detailed understanding of the revenue, additional calculations were performed to analyze the yearly revenue based on the previously computed figures.
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS y_revenue;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW y_revenue AS
+SELECT revenue_product, product_id, order_year, SUM(revenue) AS total_revenue
+FROM revenue_w_promo
+GROUP BY order_year, product_id
+```
+````
+
+```` sql
+```{sql connection=my_db}
+
+SELECT *
+FROM y_revenue
+```
+````
+
+### Calculating Revenue based on Month
+
+Similarly, the monthly revenue is also created -
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS month_product_revenue;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW month_product_revenue AS
+SELECT revenue_product, product_id, order_month, SUM(revenue) AS total_revenue
+FROM revenue_w_promo
+GROUP BY order_month, product_id
+```
+````
+
+```` sql
+```{sql connection=my_db}
+
+SELECT *
+FROM month_product_revenue
+```
+````
+
+## Data Visualisation
+
+### Order Based County
+
+**Graph 1** - Number of orders received from each county of United Kingdom - this graph is being made in order to understand the demand in various county's of UK
+
+![Order Based on County](images/clipboard-1535228865.png)
+
+### Sales per Product
+
+Sales per product were calculated also by using R libraries by merging the csv files of the created synthetic data in order to create graph using ggplot. The contributory data is collected from - **`product.csv`**, **`order.csv`** and **`voucher.csv`**
+
+**Graph 2** - Following is the graph which displays the total sales per product from year 2022.
+
+![Sales per Product](images/clipboard-1934730451.png)
+
+### Sales per Area
+
+**Graph 3** - following graph is based on further understanding of the sales per area/county to understand the customer demand
+
+![Sales per Area](images/clipboard-797573000.png)
+
+### Sales per Year
+
+**Graph 4** - Another graph is created to understand the sales per year since the year 2022
+
+![](images/clipboard-2540462925.png)
+
+**Graph 5** - Further to understand the peak demand time period, we plot a graph for quarterly sales from the year 2022 till 2024
+
+![Sales per Year](images/clipboard-2053980944.png)
+
+### Distribution Sales per Month
+
+**Graph 6** - Finally, to narrow down and further find the peak months, we plotted a facet grid where the sales per month for all three years 2022,2023 and 2024 were plotted
+
+![Distribution Sales per Month](images/clipboard-3467702618.png)
+
+The above approach is based on Time Series Decomposition where we break down the time series in order to understand the trend over specific period.
+```
+````
+
+# Conclusion
+
+Overall, the report shows Muse’s ability to handle processed data for a more automated and accurate performance. The ER (Entity-Relationship) diagram clearly shows the relationships between different entities involved within the organisation, while the schema describes the structure of the data. Tools like Github were used to ensure effective collaboration ensuring efficiency when it came to teamwork as well as using CI/CD for the automation of the build, testing as well as deployment of the code used for the process. The entirety of the workflow was built on Github as well which allowed for easier code changes. All this was done to improve the efficiency for the different processes in Muse thus increasing accuracy and customer satisfaction.
+
+
+
