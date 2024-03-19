@@ -939,6 +939,7 @@ WHERE selling_price >= 2000
 ORDER BY selling_price DESC;
 ```
 ````
+![](figure/top_10_product.png)
 
 
 ### Top 10 Customers and their Order Quantity
@@ -952,6 +953,7 @@ ORDER BY total_quantity DESC
 LIMIT 10;
 ```
 ````
+![](figure/top_10_customer.png)
 
 ### Top Selling Product
 
@@ -968,6 +970,7 @@ ORDER BY total_quantity DESC
 LIMIT 10;
 ```
 ````
+![](figure/top_10_selling_product.png)
 
 ### Least Selling Product
 
@@ -982,7 +985,7 @@ ORDER BY total_quantity ASC
 LIMIT 10;
 ```
 ````
-
+![](figure/least_selling_product.png)
 
 ### Total Revenue Generated from each Media Type
 
@@ -995,6 +998,8 @@ ORDER BY total_revenue DESC
 LIMIT 5;
 ```
 ````
+![](figure/revenue_from_media.png)
+
 
 ### Sales
 
@@ -1052,6 +1057,7 @@ SELECT *
 FROM sales
 ```
 ````
+![](figure/total_sales.png)
 
 ### Revenue
 
@@ -1165,6 +1171,7 @@ SELECT *
 FROM revenue_w_promo
 ```
 ````
+![](figure/total_revenue.png)
 
 ### Calculating Revenue based on Year
 
@@ -1192,6 +1199,7 @@ SELECT *
 FROM y_revenue
 ```
 ````
+![](figure/revenue_per_year.png)
 
 ### Calculating Revenue based on Month
 
@@ -1219,6 +1227,7 @@ SELECT *
 FROM month_product_revenue
 ```
 ````
+![](figure/revenue_per_month.png)
 
 ## Data Visualisation
 
