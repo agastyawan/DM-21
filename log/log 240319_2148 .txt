@@ -1,0 +1,69 @@
+STRUCTURE DATA VALIDATION LOG
+##------ Tue Mar 19 21:48:32 2024 ------##
+
+ CUSTOMER
+	 There is no duplicated data in customer
+	 Sufficient primary key
+	 The data type in  col  is sufficient
+	 All emails are valid
+	 The data type in  col  is sufficient
+	 The referrals are validated
+
+ AD
+	 There is no duplicated data in ad
+	 Sufficient primary key
+	 The data type in  col  is sufficient
+	 The data type in  col  is sufficient
+	 The data type in  "impression"  is sufficient
+	 The data type in  "click"  is sufficient
+	 The data type in  "cost"  is sufficient
+	 The data type in  "action"  is sufficient
+	 The data type in  "revenue"  is sufficient
+
+ ORDER
+	Sufficient primary key
+	 There is no duplicated data in order
+	 The data type in  col  is sufficient
+	 The data type in  "quantity"  is sufficient
+	 The foreign key are well-connected 
+	 The foreign key are well-connected 
+	 The foreign key are well-connected 
+
+ PRODUCT
+	 There is no duplicated data in product
+	 Sufficient primary key
+	 The data type in  "selling_price"  is sufficient
+	 The data type in  "cost_price"  is sufficient
+	 The foreign key are well-connected 
+
+ PRODUCT
+	 There is no duplicated data in promotion
+	 Sufficient primary key
+
+ STOCK
+	 There is no duplicated data in stock
+	 Sufficient primary key
+	 The foreign key are well-connected 
+	 The foreign key are well-connected 
+
+ VOUCHER
+	 There is no duplicated data in voucher
+	 Sufficient primary key
+
+ SUPPLIER
+	 There is no duplicated data in supplier
+	 Sufficient primary key
+
+ WAREHOUSE
+	 There is no duplicated data in warehouse
+	 Sufficient primary key
+
+ SELL
+	 There is no duplicated data in sell
+	 The foreign key are well-connected 
+	 The foreign key are well-connected 
+
+ PROMOTE
+	 There is no duplicated data in promote
+	 The foreign key are well-connected 
+	 The foreign key are well-connected 
