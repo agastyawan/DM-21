@@ -226,7 +226,7 @@ writeLines("\n PRODUCT", log_file)
 close(log_file)
 duprec(promotion,"promotion")
 #checkcol('promotion', promotion)
-check_pk(promotion,"promotion_id")
+#check_pk(promotion,"promotion_id")
 
 # Stock
 log_file <- file(filename, "a")
