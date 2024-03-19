@@ -1,0 +1,80 @@
+STRUCTURE DATA VALIDATION LOG
+##------ Tue Mar 19 23:06:57 2024 ------##
+
+ CUSTOMER
+	 All columns in customer are similar
+	 There is no duplicated data in customer
+	 Sufficient primary key
+	 The data type in  col  is sufficient
+	 All emails are valid
+	 The data type in  col  is sufficient
+	 The referrals are validated
+
+ AD
+	 All columns in ad are similar
+	 There is no duplicated data in ad
+	 Sufficient primary key
+	 The data type in  col  is sufficient
+	 The data type in  col  is sufficient
+	 The data type in  "impression"  is sufficient
+	 The data type in  "click"  is sufficient
+	 The data type in  "cost"  is sufficient
+	 The data type in  "action"  is sufficient
+	 The data type in  "revenue"  is sufficient
+
+ ORDER
+	 All columns in order are similar
+	Sufficient primary key
+	 There is no duplicated data in order
+	 The data type in  col  is sufficient
+	 The data type in  "quantity"  is sufficient
+	 The foreign key are well-connected 
+	 The foreign key are well-connected 
+	 The foreign key are well-connected 
+
+ PRODUCT
+	 There is no duplicated data in product
+	 All columns in product are similar
+	 Sufficient primary key
+	 The data type in  "selling_price"  is sufficient
+	 The data type in  "cost_price"  is sufficient
+	 The foreign key are well-connected 
+
+ PRODUCT
+	 There is no duplicated data in promotion
+	 All columns in promotion are similar
+	 Sufficient primary key
+
+ STOCK
+	 All columns in stock are similar
+	 There is no duplicated data in stock
+	 Sufficient primary key
+	 The foreign key are well-connected 
+	 The foreign key are well-connected 
+
+ VOUCHER
+	 All columns in voucher are similar
+	 There is no duplicated data in voucher
+	 Sufficient primary key
+
+ SUPPLIER
+	 There is no duplicated data in supplier
+	 All columns in supplier are similar
+	 Sufficient primary key
+
+ WAREHOUSE
+	 There is no duplicated data in warehouse
+	 All columns in warehouse are similar
+	 Sufficient primary key
+
+ SELL
+	 There is no duplicated data in sell
+	 All columns in sell are similar
+	 The foreign key are well-connected 
+	 The foreign key are well-connected 
+
+ PROMOTE
+	 There is no duplicated data in promote
+	 All columns in promote are similar
+	 The foreign key are well-connected 
+	 The foreign key are well-connected 
