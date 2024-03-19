@@ -206,7 +206,7 @@ check_date(order,"order_date")
 check_num(order,"quantity")
 check_fk(order, "cust_id", customer)
 check_fk(order, "product_id", product)
-check_fk(order, "promotion_id", promotion)
+check_fk(order, "voucher_code", voucher)
 
 
 # Product
