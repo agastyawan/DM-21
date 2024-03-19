@@ -123,7 +123,7 @@ sell <- readr::read_csv("data_upload/sell.csv", col_types=cols())
 stock <- readr::read_csv("data_upload/stock.csv", col_types=cols())
 promote <- readr::read_csv("data_upload/promote.csv", col_types=cols()) 
 product <- readr::read_csv("data_upload/product.csv", col_types=cols()) 
-product <- readr::read_csv("data_upload/product.csv", col_types=cols()) 
+voucher <- readr::read_csv("data_upload/voucher.csv", col_types=cols()) 
 my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"e_commerce.db")
 
 
@@ -238,6 +238,15 @@ duprec(stock,"stock")
 check_pk(stock, "sku")
 check_fk(stock, "w_id", warehouse)
 check_fk(stock, "product_id", product)
+
+# voucher
+log_file <- file(filename, "a")
+writeLines("\n VOUCHER", log_file)
+close(log_file)
+
+#checkcol('stock', stock)
+duprec(voucher,"voucher")
+check_pk(voucher, "voucher_code")
 
 
 # Supplier
