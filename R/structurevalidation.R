@@ -114,7 +114,6 @@ check_num <- function(table,col) {
 customer <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
 ad <- readr::read_csv("data_upload/ad.csv", col_types=cols()) 
 promotion <- readr::read_csv("data_upload/promotion.csv", col_types=cols()) 
-promotion <- readr::read_csv("data_upload/voucher.csv", col_types=cols())
 stock <- readr::read_csv("data_upload/stock.csv", col_types=cols()) 
 supplier <- readr::read_csv("data_upload/supplier.csv", col_types=cols()) 
 warehouse <- readr::read_csv("data_upload/warehouse.csv", col_types=cols()) 
@@ -226,7 +225,7 @@ writeLines("\n PRODUCT", log_file)
 close(log_file)
 duprec(promotion,"promotion")
 #checkcol('promotion', promotion)
-#check_pk(promotion,"promotion_id")
+check_pk(promotion,"promotion_id")
 
 # Stock
 log_file <- file(filename, "a")
