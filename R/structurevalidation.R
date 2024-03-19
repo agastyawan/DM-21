@@ -12,7 +12,7 @@ close(log_file)
 
 #Make a function to check data structure
 checkcol <- function(name) {
-  log_file <- file("filename.txt", "a")
+  log_file <- file(filename, "a")
   csv <- readr::read_csv(paste0("data_upload/", name, ".csv"), col_types = cols())
   db <- DBI::dbReadTable(my_db, name)
   db_column_names <- sort(names(db))
