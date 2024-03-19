@@ -916,6 +916,7 @@ jobs:
 
 
 This workflow will automatically run the validation, dataload, & visualisation  every time new data is committed. Every step will be recorded in the logfile.
+![log file](https://github.com/agastyawan/DM-21/blob/a31c7d9e97f74c9e04196eab8fbdb8d79c80300c/figure/logfile.png)
 
 
 # Data Analysis & Reporting
