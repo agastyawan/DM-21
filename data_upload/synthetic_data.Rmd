@@ -1,0 +1,512 @@
+---
+title: "synthetic_data"
+author: "DM 21"
+date: "2024-03-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(readr)
+library(RSQLite)
+library(dplyr)
+library(generator)
+library(charlatan)
+library(digest)
+library(stringi)
+library(chron)
+library(DBI)
+library(lubridate)
+library(scales)
+library(ggplot2)
+```
+
+# Generate Synthetic data
+In this session, several R packages and address datasets have been utilised to generate synthetic data that fits the database schema we created earlier.
+
+## Personal data generation
+To generate personal data, including addresses and phone numbers, real UK postcode data has been used, which contains information about cities and counties. Additionally, random street names were extracted from the 'street_name.csv' dataset to ensure synthetic address data. For phone numbers, British random phone numbers starting with '07' and nine digits in length were generated.
+```{r}
+address_db <- read.csv("postcodes.csv", na.strings = c("", "NA"), fileEncoding = "UTF-8")
+address_db <- address_db[, c(1,6,9)]
+address_db <- na.omit(address_db)
+street_db <- read.csv("street_name.csv")
+postcode <- address_db$postcode
+st_name <- street_db$Street.Name
+
+# Function to generate phone numbers starting with 07
+phone_number_custom <- function(n) {
+  phone_numbers <- stri_rand_strings(n, pattern = "[0-9]", length = 9)
+  phone_numbers <- paste0("07", phone_numbers)
+  return(phone_numbers)
+}
+```
+
+## Generating datasets for tables
+
+### Customer data
+We set a specific date range for cust_reg_date, ensuring that this range falls later than the customer's birthday (cust_birth_date). Customer names and passwords were generated using the 'generator' package, with the names split into first names and last names. Additionally, we ensured that cust_password was encrypted. Zip codes and addresses were generated using the dataset mentioned above. 
+```{r}
+n <- 200
+set.seed(1)
+membership_type <- c("SILVER", "BRONZE", "GOLD", "PLATINUM")
+
+customer <- data.frame(
+  cust_id = seq(n),
+  cust_reg_date = r_date_of_births(n, start = as.Date("2018-01-01"), end = Sys.Date()),
+  cust_full_name = ch_name(n, locale = "en_GB", messy = FALSE),
+  cust_email = r_email_addresses(n),
+  cust_password = r_national_identification_numbers(n),
+  cust_phone = phone_number_custom(n),
+  postcode = sample(x = postcode, size = n, replace = TRUE),
+  cust_street_address = paste0(sample(x = st_name, size = n, replace = TRUE), " ", sample(1:99, n, replace = TRUE)),
+  membership = sample(x = membership_type, size = n, replace = TRUE),
+  cust_birth_date = r_date_of_births(n, start = as.Date("1970-01-01"), end = as.Date("2010-01-01")),
+  cust_referral = sample(0:n, size = n, replace = TRUE),
+  stringsAsFactors = FALSE
+)
+
+# Split the first name and last name
+customer$cust_first_name <- sapply(strsplit(as.character(customer$cust_full_name), " "), function(x) paste(x[-length(x)], collapse = " "))
+customer$cust_last_name <- sapply(strsplit(as.character(customer$cust_full_name), " "), function(x) tail(x, 1))
+
+# Customer password
+customer$cust_password <- digest(customer$cust_password, algo = "md5", serialize = FALSE)
+
+# Customer address
+customer <- merge(customer, address_db, by = "postcode", all.x = TRUE)
+customer$cust_zipcode <- customer$postcode
+customer$cust_city <- customer$town
+customer$cust_county <- customer$country_string
+
+# Select customer data
+customer <- select(customer, cust_id, cust_reg_date, cust_last_name, cust_first_name, cust_email, cust_password, cust_phone, cust_zipcode, cust_street_address, cust_city, cust_county, membership, cust_birth_date, cust_referral)
+
+# Generate CSV data
+write.csv(customer, file = "customer.csv", row.names = FALSE)
+
+# Print
+print(customer)
+```
+
+### Product data
+In the product data, 30 entries are distributed among 10 distinct categories. To ensure consistency, the structure of the 'model_name' attribute across all products has been standardised. The 'cost_price' of each product is randomly assigned within a range of 85% to 90% of the 'selling_price', maintaining variability while adhering to predetermined criteria.
+```{r}
+n <- 30
+set.seed(1)
+
+# Generate product data frame
+product <- data.frame(
+  product_id = 1:n,
+  category_name = sample(c('guitar', 'drum', 'base', 'keyboards', 'pianos', 'saxophones', 'flute', 'violin', 'cello', 'harp', 'chimes', 'french horn', 'trumpet', 'bagpipe', 'microphone', 'cable', 'connector', 'lightning', 'headphone'), n, replace = TRUE),
+  model_name = sapply(1:30, function(x) paste0(sample(letters, 2, replace = TRUE), sample(0:9, 2, replace = TRUE), collapse = '')),
+  selling_price = NA,  # Initialize selling_price column
+  stock_qty = sample(30:300, n, replace = TRUE)
+)
+
+# Set selling price based on category_name
+product$selling_price <- ifelse(product$category_name == "harp", 
+                                sample(1100:3000, n, replace = TRUE), 
+                                ifelse(product$category_name %in% c("guitar", "base", "flute", "violin", "cello", "chimes", "french horn", "trumpet", "bagpipe"), 
+                                       sample(1000:2599, n, replace = TRUE), 
+                                       sample(50:999, n, replace = TRUE)))
+
+# Add cost_price column
+product$cost_price <- ifelse(product$category_name == 'pianos', product$selling_price * 0.90,
+                             ifelse(product$category_name %in% c('guitar', 'drum', 'base', 'keyboards', 'saxophones', 'flute', 'violin', 'cello', 'harp', 'chimes', 'french horn', 'trumpet', 'bagpipe'), product$selling_price * 0.85,
+                                    product$selling_price * 0.90))
+
+# Save product.csv
+write.csv(product, file = "product.csv", row.names = FALSE)
+
+# Print
+print(product)
+```
+
+### Promotion data
+We set expiration dates in 2024 for all promotion.
+```{r}
+n <- 30
+
+# Set seed
+set.seed(2)
+
+# Generate promotion IDs
+promotion_id <- seq(n)
+
+# Generate promotion rate convert to percentage
+promotion_name <- sample(c('BirthdayBonus', 'VIP', 'Referral', 'SpringSale', 'BackTOSchool', 'MerryChristmas', 'WelcomeNewYear', 'ValentineValue', 'NewcommerWelcome', 'EasterSurprise'), 30, replace = TRUE)
+
+# Combine data
+promotion <- data.frame(promotion_id, promotion_name = promotion_name)
+
+# Save the data frame to a CSV file
+write.csv(promotion, "promotion.csv", row.names = FALSE)
+
+# Print
+print(promotion)
+```
+
+
+### Voucher Data
+
+The generated voucher rates are in decimal.
+```{r}
+n <- 30
+
+# Set seed
+set.seed(2)
+
+# Generate promotion IDs
+voucher_code <- paste0("UK", sprintf("%02d", 1:30))
+
+# Generate promotion rate convert to percentage
+voucher_rate <- sample(c('0.05', '0.10', '0.15', '0.20', '0.25', '0.30'), 30, replace = TRUE)
+
+# Combine data
+voucher <- data.frame(
+  voucher_code = voucher_code,
+  voucher_rate = voucher_rate,
+  promotion_id = sample(promotion$promotion_id, n, replace = TRUE),
+  stringsAsFactors = FALSE
+)
+
+# Save the data frame to a CSV file
+write.csv(voucher, "voucher.csv", row.names = FALSE)
+
+# Print
+print(voucher)
+```
+
+### Ad data
+The company utilises a total of 6 types of media for advertisement, with each ad_name created based on the ad_type. We ensured that the end_date of each ad is later than its start_date. Additionally, to reflect industry norms, we enforced constraints such as ensuring that impression > click > action, with specific conditions such as click < impression * 0.1. 
+```{r}
+n <- 200
+
+# Define the function to generate synthetic data with specified conditions
+generate_synthetic_data <- function(n) {
+  media_type <- c("Website", "Facebook", "Instagram", "Tiktok", "Google", "Flyer")
+  ad_type <- c("Discount", "Cut Off", "Promotion", "Bonus", "Freebies")
+  
+  ad_data <- data.frame(
+    ad_id = seq(n),
+    media_name = sample(x = media_type, size = n, replace = TRUE),
+    ad_type = paste0(sample(x = ad_type, size = n, replace = TRUE)),
+    start_date = as.Date(sample(seq(as.Date("2018-01-01"), Sys.Date(), by = "day"), n, replace = TRUE)),
+    impression = sample(100:1000, n, replace = TRUE),
+    stringsAsFactors = FALSE
+  )
+  
+  ad_data$end_date <- ad_data$start_date + sample(1:90, n, replace = TRUE)
+  ad_data$impression <- sample(1000:50000, n, replace = TRUE)
+  ad_data$cost <- sample(10:1500, n, replace = TRUE)
+  ad_data$revenue <- ad_data$cost * sample(seq(0.1, 5, by = 0.01), n, replace = TRUE)
+  ad_data$click <- round(ad_data$impression * runif(n, 0.05, 0.1))
+  ad_data$action <- round(ad_data$click * runif(n, 0.05, 0.2))
+  
+  # Filter out rows based on conditions
+  ad <- ad_data %>%
+    filter(impression >= 1000,
+           click < impression * 0.1,
+           action < click * 0.2,
+           cost >= click * 0.3,
+           cost <= click * 2,
+           revenue >= cost * 0.1,
+           revenue <= cost * 5)
+  
+  return(ad_data)
+}
+
+
+# Generate synthetic data
+n <- 200
+ad <- generate_synthetic_data(n)
+
+# Write data to CSV
+write.csv(ad, file = "ad.csv", row.names = FALSE)
+
+# Print
+print(ad)
+```
+
+
+### Supplier data
+The company purchases the products from 10 contracted suppliers, and suppliers' information including phone number and address were randomly generated in British style.
+```{r}
+n <- 10
+s_phone <- phone_number_custom(n)
+s_email <- r_email_addresses(n)
+
+supplier <- data.frame(
+  s_id = seq(n),
+  s_name = c('Harmony Haven Instruments', 'Melody Masters Music Emporium', 'Rhythmic Resonance Supplies', 'Crescendo Corner', 'Sonic Spectrum Distributors', 'Tempo Treasures Inc.', 'Aria Attic Instruments', 'Virtuoso Ventures', 'Serenade Suppliers', 'Allegro Accessories Outlet'),
+  postcode = sample(x = postcode, size = n, replace = TRUE),
+  s_street_address = paste0(sample(x = st_name, size = n, replace = TRUE), " ", sample(1:10, n, replace = TRUE)),
+  s_phone = s_phone,
+  s_email = s_email
+)
+
+supplier <- merge(supplier, address_db, by = "postcode", all.x = TRUE)
+supplier$s_zipcode <- supplier$postcode
+supplier$s_city <- supplier$town
+supplier$s_county <- supplier$country_string
+
+supplier <- select(supplier, s_id, s_name, s_zipcode, s_street_address, s_city, s_county, s_phone, s_email)
+
+# Display the generated data
+print(supplier)
+
+# Save supplier.csv
+write.csv(supplier, file = "supplier.csv", row.names = FALSE)
+```
+
+### Warehouse data
+The company operates one warehouse for each region of England, Wales, and Scotland. The warehouse names (w_name) are derived from the names of the respective regions (counties). For example, warehouse 'Eng01' corresponds to the region of England and has address information based on England. 
+```{r}
+n <- 3
+
+# Create warehouse data frame with three rows
+warehouse <- data.frame(
+  w_id = seq(n),
+  w_name = c('Eng01', 'Wales01', 'Scot01'),
+  w_street_address = paste0(sample(x = st_name, size = n, replace = TRUE), " ", sample(1:10, n, replace = TRUE)),
+  w_county = c('England', 'Wales', 'Scotland'),
+  stringsAsFactors = FALSE  # Avoids creating factors for character variables
+)
+
+# Sample postcodes for each region
+sampled_postcodes <- sapply(warehouse$w_county, function(county) {
+  subset_postcodes <- address_db$postcode[address_db$country_string == county]
+  if (length(subset_postcodes) > 0) {
+    return(sample(subset_postcodes, 1))
+  } else {
+    return(NA)  # Handle the case where there are no postcodes for the specified county
+  }
+})
+
+# Add sampled postcodes to the warehouse data
+warehouse$postcode <- sampled_postcodes
+
+# Assuming address_db is a data frame or tibble with columns w_zipcode, w_city, etc.
+# Merge with address_db
+warehouse <- merge(warehouse, address_db, by = "postcode", all.x = TRUE)
+warehouse$w_zipcode <- warehouse$postcode
+warehouse$w_city <- warehouse$town
+
+# Select relevant columns
+warehouse <- warehouse %>%
+  select(w_id, w_name, w_zipcode, w_street_address, w_city, w_county)
+
+# Save warehouse.csv
+write.csv(warehouse, file = "warehouse.csv", row.names = FALSE)
+
+# Print the warehouse data
+print(warehouse)
+```
+
+### Promote data
+The 'promote' table establishes a many-to-many relationship between advertisements and products. Each row from the previously generated product and ad data was brought into the 'promote' table to reflect this relationship.
+```{r}
+n <- 200
+
+# Create promote data frame
+promote <- data.frame(ad_id = sample(ad$ad_id, n, replace = TRUE),
+                      product_id = sample(product$product_id, n, replace = TRUE),
+                      stringsAsFactors = FALSE)
+
+# Save promote.csv
+write.csv(promote, file = "promote.csv", row.names = FALSE)
+
+# Print the promote data
+print(promote)
+
+```
+
+
+### Stock table
+The company assigns a unique sku to each product_id, ensuring that products with the same product ID are stored in the same location within each warehouse.
+```{r}
+# Set seed for reproducibility
+set.seed(1)
+
+# Create stock data frame
+stock <- data.frame(
+  sku = 1:30,  # Assuming 30 rows as there are 30 products
+  product_id = sample(product$product_id, 30, replace = TRUE),
+  w_id = sample(warehouse$w_id, 30, replace = TRUE)
+)
+
+# Display the generated stock data
+print(stock)
+
+# Save stock.csv
+write.csv(stock, file = "stock.csv", row.names = FALSE)
+```
+
+### Order data
+The order data was generated within a certain range of dates, with additional data concentrated in specific time periods to capture monthly trends. We ensured that cust_id, product_id, and voucher_code were referenced from existing data generated earlier. Additionally, for orders with the same order_id, the payment_method was standardized as only one payment method can be used for each order.
+```{r}
+library(dplyr)
+
+n <- 500
+
+# Generate order IDs
+order_id <- seq(n)
+
+# Generate customer order dates
+start_date <- as.Date("2022-01-01")
+end_date <- as.Date("2024-12-31")
+
+# Generate more orders in March, September, and December
+extra_dates <- c(
+  sample(seq(as.Date("2024-03-01"), as.Date("2024-03-31"), by = "day"), size = 30, replace = TRUE),
+  sample(seq(as.Date("2024-09-01"), as.Date("2024-09-30"), by = "day"), size = 30, replace = TRUE),
+  sample(seq(as.Date("2024-12-01"), as.Date("2024-12-31"), by = "day"), size = 50, replace = TRUE),
+  sample(seq(as.Date("2023-03-01"), as.Date("2023-03-31"), by = "day"), size = 25, replace = TRUE),
+  sample(seq(as.Date("2023-09-01"), as.Date("2023-09-30"), by = "day"), size = 20, replace = TRUE),
+  sample(seq(as.Date("2023-12-01"), as.Date("2023-12-31"), by = "day"), size = 40, replace = TRUE),
+  sample(seq(as.Date("2022-03-01"), as.Date("2022-03-31"), by = "day"), size = 20, replace = TRUE),
+  sample(seq(as.Date("2022-09-01"), as.Date("2022-09-30"), by = "day"), size = 15, replace = TRUE),
+  sample(seq(as.Date("2022-12-01"), as.Date("2022-12-31"), by = "day"), size = 30, replace = TRUE)
+)
+
+order_date <- c(sample(seq(start_date, end_date, by = "day"), size = 240), extra_dates)
+
+# Generate quantities as three-digit numbers that are multiples of 5
+quantity <- sample(1:5, size = n, replace = TRUE)
+
+# Generate customer IDs
+cust_id <- sample(customer$cust_id, n, replace = TRUE)
+
+# Generate product IDs
+product_id <- sample(product$product_id, n, replace = TRUE)
+
+# Generate payment methods (assuming 1 = Credit Card, 2 = Debit Card, 3 = Cash)
+# Generate a consistent payment method for each unique order_id, cust_id, and product_id
+payment_methods <- c("Credit Card", "Debit Card", "Paypal")
+payment_method <- rep(payment_methods, length.out = n)
+
+# Generate promotion IDs
+voucher_code <- sample(voucher$voucher_code, n, replace = TRUE)
+
+# Combine data
+order <- data.frame(
+  order_id = order_id,
+  order_date = order_date,
+  quantity = quantity,
+  cust_id = cust_id,
+  product_id = product_id,
+  payment_method = payment_method,
+  voucher_code = voucher_code
+)
+
+# Save the data frame to a CSV file
+write.csv(order, "order.csv", row.names = FALSE)
+
+# View first few rows
+head(order)
+
+```
+
+### Sell data
+To establish the relationship between suppliers and products, we ensured that the supplier IDs (s_id) and product IDs (product_id) referenced existing data generated earlier.
+```{r}
+n<-50
+
+# Set seed (optional)
+set.seed(123)
+
+# Combine data
+sell <- data.frame(
+  s_id = sample(supplier$s_id, n, replace = TRUE),
+  product_id = sample(product$product_id, n, replace = TRUE)
+)
+
+# Save the data frame to a CSV file
+write.csv(sell, "sell.csv", row.names = FALSE)
+
+# View first few rows
+head(sell)
+
+```
+## Read the csv file
+```{r}
+customer <- readr::read_csv("customer.csv", col_types=cols(
+  cust_reg_date = col_character(),
+  cust_birth_date = col_character()
+)) 
+ad <- readr::read_csv("ad.csv", col_types=cols(
+  start_date = col_character(),
+  end_date = col_character()
+))
+warehouse <- readr::read_csv("warehouse.csv", col_types=cols())
+voucher <- readr::read_csv("voucher.csv", col_types=cols())
+promotion <- readr::read_csv("promotion.csv", col_types=cols())
+product <- readr::read_csv("product.csv", col_types=cols()) 
+order <- readr::read_csv("order.csv", col_types=cols(order_date = col_character()))
+sell <- readr::read_csv("sell.csv", col_types=cols())
+supplier <- readr::read_csv("supplier.csv", col_types=cols()) 
+promote <- readr::read_csv("promote.csv", col_types=cols()) 
+stock <- readr::read_csv("stock.csv", col_types=cols())
+```
+
+## Connect database with data
+Finally, we tested if all data fit into database before automate workflow.
+```{r}
+# Establish a connection to your SQLite database
+con <- dbConnect(RSQLite::SQLite(), dbname = "e_commerce.db")
+
+# Write the data frame to the database
+
+dbWriteTable(con, "customer", customer, append = TRUE, row.names = FALSE)
+dbWriteTable(con, "ad", ad, append = TRUE, row.names = FALSE)
+dbWriteTable(con, "warehouse", warehouse, append = TRUE, row.names = FALSE)
+dbWriteTable(con, "voucher", voucher, append = TRUE, row.names = FALSE)
+dbWriteTable(con, "promotion", promotion, append = TRUE, row.names = FALSE)
+dbWriteTable(con, "product", product, append = TRUE, row.names = FALSE)
+dbWriteTable(con, "order", order, append = TRUE, row.names = FALSE)
+dbWriteTable(con, "sell", sell, append = TRUE, row.names = FALSE)
+dbWriteTable(con, "supplier", supplier, append = TRUE, row.names = FALSE)
+dbWriteTable(con, "promote", promote, append = TRUE, row.names = FALSE)
+dbWriteTable(con, "stock", stock, append = TRUE, row.names = FALSE)
+
+
+```
+
+```{r}
+# Read a table from the database into a data frame
+customer_data <- dbReadTable(con, "customer")
+ad_data <- dbReadTable(con, "ad")
+warehouse_data <- dbReadTable(con, "warehouse")
+promotion_data <- dbReadTable(con, "promotion")
+voucher_data <- dbReadTable(con,"voucher")
+product_data <- dbReadTable(con, "product")
+order_data <- dbReadTable(con, "order")
+sell_data <- dbReadTable(con, "sell")
+supplier_data <- dbReadTable(con, "supplier")
+promote_data <- dbReadTable(con, "promote")
+stock_data <- dbReadTable(con, "stock")
+
+# Print or inspect the data frames
+print(customer_data)
+print(ad_data)
+print(warehouse_data)
+print(promotion_data)
+print(voucher_data)
+print(product_data)
+print(order_data)
+print(sell_data)
+print(supplier_data)
+print(promote_data)
+print(stock_data)
+
+
+# Close the database connection
+#RSQLite::dbDisconnect(my_db)
+```
+
+
+All the data is well-connected to the table without any errors.
+
+-----------------------------------------------------------------
