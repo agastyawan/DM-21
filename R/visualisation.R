@@ -12,6 +12,7 @@ data_customers <- dbGetQuery(my_db, "SELECT * FROM customer")
 data_orders <- dbGetQuery(my_db, "SELECT * FROM 'order'")
 data_product <- dbGetQuery(my_db, "SELECT * FROM product")
 data_promotion <- dbGetQuery(my_db, "SELECT * FROM promotion")
+data_voucher <- dbGetQuery(my_db, "SELECT * FROM voucher")
 
 #Graph 1
 # Merge the tables based on a common attribute (e.g., customer_id)
@@ -42,10 +43,10 @@ merged_data_sales <- merge(data_product, data_orders, by = "product_id")
 merged_data_sales$sales_data <- merged_data_sales$quantity *merged_data_sales$selling_price
 
 # Merge the promotion data with the sales data
-merged_data_sales_p <- merge(data_promotion, merged_data_sales, by = "promotion_id")
+merged_data_sales_p <- merge(data_voucher, merged_data_sales, by = "voucher_code")
 
 # Now, calculate the sales by subtracting the promotion rate from sales_data
-merged_data_sales_p$sales <- merged_data_sales_p$sales_data - (merged_data_sales_p$selling_price * merged_data_sales_p$promotion_rate)
+merged_data_sales_p$sales <- merged_data_sales_p$sales_data - (merged_data_sales_p$selling_price * merged_data_sales_p$voucher_rate)
 
 sales_by_category <- merged_data_sales_p %>%
   group_by(category_name) %>%
