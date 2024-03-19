@@ -276,7 +276,7 @@ write.csv(customer, file = "customer.csv", row.names = FALSE)
 | 2       | 2019-11-11    | Burrows        | Karl            |
 | 3       | 2023-12-18    | Howard         | Holly           |
 
-: customer reg_date and name
+
 
 | cust_password                    |
 |----------------------------------|
@@ -284,7 +284,7 @@ write.csv(customer, file = "customer.csv", row.names = FALSE)
 | 2e06cf4fda81ae33015430fed51f5127 |
 | 2e06cf4fda81ae33015430fed51f5127 |
 
-: customer password
+
 
 | cust_zipcode | cust_street_address | cust_city | cust_county |
 |--------------|---------------------|-----------|-------------|
@@ -292,7 +292,7 @@ write.csv(customer, file = "customer.csv", row.names = FALSE)
 | SW2          | Church Lane 56      | Lambeth   | England     |
 | SG19         | The Green 39        | Everton   | England     |
 
-: customer address
+
 
 ### Product Data
 
@@ -445,7 +445,7 @@ write.csv(ad, file = "ad.csv", row.names = FALSE)
 |     2 | Flyer      | Promotion | 2021-04-20 | 2021-07-06 |
 |     3 | Flyer      | Cut Off   | 2018-10-26 | 2018-11-18 |
 
-: ad specification
+
 
 | impression | cost | revenue | click | action |
 |-----------:|-----:|--------:|------:|-------:|
@@ -453,7 +453,7 @@ write.csv(ad, file = "ad.csv", row.names = FALSE)
 |      26095 | 1276 |  165.88 |  1401 |     73 |
 |      41469 |   34 |  151.64 |  2643 |    382 |
 
-: ad performance
+
 
 ### Supplier Data
 
@@ -529,17 +529,14 @@ write.csv(warehouse, file = "warehouse.csv", row.names = FALSE)
 ```
 
 
-+----------+----------+-----------+------------------+------------+----------+
-| w_id     | w_name   | w_zipcode | w_street_address | w_city     | w_county |
-+=========:+:=========+:==========+:=================+:===========+:=========+
-| 3        | Scot01   | G82       | Kings Road 2     | Dumbarton  | Scotland |
-+----------+----------+-----------+------------------+------------+----------+
-| 1        | Eng01    | LS23      | West Street 8    | Boston Spa | England  |
-+----------+----------+-----------+------------------+------------+----------+
-| 2        | Wales01  | SA6       | New Street 4     | Morriston  | Wales    |
-+----------+----------+-----------+------------------+------------+----------+
 
-: warehouse data
+| w_id     | w_name   | w_zipcode | w_street_address | w_city     | w_county |
+|----------|----------|-----------|------------------|------------|----------|
+| 3        | Scot01   | G82       | Kings Road 2     | Dumbarton  | Scotland |
+| 1        | Eng01    | LS23      | West Street 8    | Boston Spa | England  |
+| 2        | Wales01  | SA6       | New Street 4     | Morriston  | Wales    |
+
+
 
 ### Promote Data
 
@@ -919,6 +916,352 @@ jobs:
 
 This workflow will automatically run the validation, dataload, & visualisation  every time new data is committed. Every step will be recorded in the logfile.
 
+
+# Data Analysis & Reporting
+## Data Analysis
+
+### Top 10 Products
+
+Data analysis is a crucial aspect for businesses, enabling them to understand their customers and make informed decisions. By leveraging SQL, we can effectively analyse the available data. Our initial focus will be on identifying the top 10 best-selling products. This approach allows us to derive insights from past trends and make accurate predictions for the future.
+
+```` r
+```{r connect}
+my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"e_commerce.db")
+```
+
+```` sql
+```{sql connection=my_db}
+SELECT product_id, category_name, model_name, selling_price, cost_price
+FROM product
+WHERE selling_price >= 2000
+ORDER BY selling_price DESC;
+```
+````
+
+
+### Top 10 Customers and their Order Quantity
+
+```` sql
+```{sql connection=my_db}
+SELECT cust_id, SUM(quantity) AS total_quantity
+FROM 'order'
+GROUP BY cust_id
+ORDER BY total_quantity DESC
+LIMIT 10;
+```
+````
+
+### Top Selling Product
+
+We conduct further analysis using SQL to identify the most frequently ordered product. This is crucial for understanding customer demand and ensuring our inventory remains up-to-date.
+
+```` sql
+```{sql connection=my_db}
+SELECT o.product_id,p.category_name,SUM(o.quantity) AS total_quantity
+FROM 'order' AS o
+JOIN 'product' AS p
+ON o.product_id = p.product_id
+GROUP BY p.product_id
+ORDER BY total_quantity DESC
+LIMIT 10;
+```
+````
+
+### Least Selling Product
+
+```` sql
+```{sql connection=my_db}
+SELECT o.product_id,p.category_name,SUM(o.quantity) AS total_quantity
+FROM 'order' AS o
+JOIN 'product' AS p
+ON o.product_id = p.product_id
+GROUP BY p.product_id
+ORDER BY total_quantity ASC
+LIMIT 10;
+```
+````
+
+
+### Total Revenue Generated from each Media Type
+
+```` sql
+```{sql connection=my_db}
+SELECT media_name, SUM(revenue) AS total_revenue
+FROM ad
+GROUP BY media_name
+ORDER BY total_revenue DESC
+LIMIT 5;
+```
+````
+
+### Sales
+
+The total sales is calculated by multiplying of the total quantity of each of the products by its selling price.
+
+1\. finding out the total quantity per **`product_ID`**
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS total_quantity;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW IF NOT EXISTS total_quantity AS
+SELECT product_id, SUM(quantity) AS quantity_total
+FROM 'order'
+GROUP BY product_id
+ORDER BY quantity_total DESC
+```
+````
+
+```` sql
+```{sql connection=my_db}
+SELECT *
+FROM total_quantity
+```
+````
+
+2.  Multiplying the total quantity with the selling price of the product
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS sales;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW IF NOT EXISTS sales AS
+SELECT tq.product_id, tq.quantity_total, p.selling_price, (tq.quantity_total * p.selling_price) AS total_sales
+FROM total_quantity as tq
+JOIN product as p
+ON tq.product_id = p.product_id
+GROUP BY tq.product_id, tq.quantity_total, p.selling_price
+ORDER BY total_sales DESC
+;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+SELECT *
+FROM sales
+```
+````
+
+### Revenue
+
+The total revenue is calculated by subtracting the selling price and cost price. As our e-commerce company provided promotional code to each of our customers based on their **`order_id`**, therefore the promotional rate is also been subtracted from the revenue.
+
+1.  selling price minus the cost price and saving the result as **`revenue_product`**
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS revenue;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW revenue AS
+SELECT product_id, selling_price, cost_price, (selling_price - cost_price) AS revenue_product
+FROM product
+GROUP BY product_id
+ORDER BY revenue_product DESC
+```
+````
+
+```` sql
+```{sql connection=my_db}
+
+SELECT *
+FROM revenue
+```
+````
+
+2.  multiplying the number of products ordered by **`revenue_product`**
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS revenue_before_promo;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW revenue_before_promo AS
+SELECT r.product_id, s.quantity_total, r.revenue_product, (s.quantity_total * r.revenue_product) AS revenue_calculated
+FROM revenue as r
+JOIN sales as s
+ON r.product_id = s.product_id
+ORDER BY revenue_calculated DESC
+```
+````
+
+```` sql
+```{sql connection=my_db}
+
+SELECT *
+FROM revenue_before_promo
+```
+````
+
+3.  Joining the promotion data with the view created before in order merge the promotional rate based on **`product_id`**
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS revenue_with_promo;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW revenue_with_promo as
+SELECT rbp.revenue_product, rbp.product_id , o.cust_id , o.order_date, o.order_id, o.voucher_code
+FROM revenue_before_promo as rbp
+JOIN 'order' as o
+ON rbp.product_id = o.product_id
+```
+````
+
+```` sql
+```{sql connection=my_db}
+SELECT * 
+FROM revenue_with_promo
+```
+````
+
+4.  Finally subtracting the promotional rate from the actual revenue calculated per product
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS revenue_w_promo;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW revenue_w_promo AS
+SELECT rwp.revenue_product, rwp.product_id, rwp.cust_id, 
+       strftime('%Y', rwp.order_date) AS order_year, 
+       strftime('%m', rwp.order_date) AS order_month, 
+       strftime('%d', rwp.order_date) AS order_day, 
+       rwp.order_date, rwp.order_id, rwp.voucher_code, v.voucher_rate, 
+       ROUND((rwp.revenue_product * (1- v.voucher_rate)),2) AS revenue
+FROM revenue_with_promo AS rwp
+JOIN voucher AS v
+ON rwp.voucher_code = v.voucher_code
+ORDER BY revenue DESC
+```
+````
+
+```` sql
+```{sql connection=my_db}
+SELECT * 
+FROM revenue_w_promo
+```
+````
+
+### Calculating Revenue based on Year
+
+To gain a more detailed understanding of the revenue, additional calculations were performed to analyze the yearly revenue based on the previously computed figures.
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS y_revenue;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW y_revenue AS
+SELECT revenue_product, product_id, order_year, SUM(revenue) AS total_revenue
+FROM revenue_w_promo
+GROUP BY order_year, product_id
+```
+````
+
+```` sql
+```{sql connection=my_db}
+
+SELECT *
+FROM y_revenue
+```
+````
+
+### Calculating Revenue based on Month
+
+Similarly, the monthly revenue is also created -
+
+```` sql
+```{sql connection=my_db}
+DROP VIEW IF EXISTS month_product_revenue;
+```
+````
+
+```` sql
+```{sql connection=my_db}
+CREATE VIEW month_product_revenue AS
+SELECT revenue_product, product_id, order_month, SUM(revenue) AS total_revenue
+FROM revenue_w_promo
+GROUP BY order_month, product_id
+```
+````
+
+```` sql
+```{sql connection=my_db}
+
+SELECT *
+FROM month_product_revenue
+```
+````
+
+## Data Visualisation
+
+### Order Based County
+
+**Graph 1** - Number of orders received from each county of United Kingdom - this graph is being made in order to understand the demand in various county's of UK
+
+![Order Based on County](images/clipboard-1535228865.png)
+
+### Sales per Product
+
+Sales per product were calculated also by using R libraries by merging the csv files of the created synthetic data in order to create graph using ggplot. The contributory data is collected from - **`product.csv`**, **`order.csv`** and **`voucher.csv`**
+
+**Graph 2** - Following is the graph which displays the total sales per product from year 2022.
+
+![Sales per Product](images/clipboard-1934730451.png)
+
+### Sales per Area
+
+**Graph 3** - following graph is based on further understanding of the sales per area/county to understand the customer demand
+
+![Sales per Area](images/clipboard-797573000.png)
+
+### Sales per Year
+
+**Graph 4** - Another graph is created to understand the sales per year since the year 2022
+
+![](images/clipboard-2540462925.png)
+
+**Graph 5** - Further to understand the peak demand time period, we plot a graph for quarterly sales from the year 2022 till 2024
+
+![Sales per Year](images/clipboard-2053980944.png)
+
+### Distribution Sales per Month
+
+**Graph 6** - Finally, to narrow down and further find the peak months, we plotted a facet grid where the sales per month for all three years 2022,2023 and 2024 were plotted
+
+![Distribution Sales per Month](images/clipboard-3467702618.png)
+
+The above approach is based on Time Series Decomposition where we break down the time series in order to understand the trend over specific period.
+```
+
+# Conclusion
+
+Overall, the report shows Muse’s ability to handle processed data for a more automated and accurate performance. The ER (Entity-Relationship) diagram clearly shows the relationships between different entities involved within the organisation, while the schema describes the structure of the data. Tools like Github were used to ensure effective collaboration ensuring efficiency when it came to teamwork as well as using CI/CD for the automation of the build, testing as well as deployment of the code used for the process. The entirety of the workflow was built on Github as well which allowed for easier code changes. All this was done to improve the efficiency for the different processes in Muse thus increasing accuracy and customer satisfaction.
 
 
 
