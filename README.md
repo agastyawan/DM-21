@@ -13,7 +13,7 @@ In a One-to-Many relationship, consider Product and Warehouse entities. All prod
 
 Additionally, the diagram applies the **Self Referencing** process, specifically to the customer entity. This process, “give referral”, occurs between customers. A customer who purchases a product from Muse can refer another potential customer to the platform.
 
-
+![ER Diagram](https://github.com/agastyawan/DM-21/blob/74eb2537e877a893b66fbaaaf9f41b48d6ac5a15/figure/ER%20Diagram.png)
 
 ### Logical Schema
 The E-R diagram showcases 5 relationships among which 3 were used for explanation. The ‘supplier’, ‘sells’ and ‘product’ relationship show how suppliers connect to products through relationships (r1 and r2). Comparably, for ‘stores in’ and ‘product’, warehouses connect to the products. The primary key for the ‘order’ relationship is made up of ‘customer_ID’, ‘product_ID’ as well as ‘Order_ID’.
