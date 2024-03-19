@@ -149,7 +149,7 @@ check_email <- function(table,col){
   }
 }
 
-checkcol("customer")
+#checkcol("customer")
 duprec(customer,"customer")
 check_pk(customer,"cust_id")
 check_date(customer,"cust_reg_date")
