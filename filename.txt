@@ -1,0 +1,11 @@
+	 All columns in customer are similar
+	 All columns in ad are similar
+	 All columns in order are similar
+	 All columns in product are similar
+	 All columns in promotion are similar
+	 All columns in stock are similar
+	 All columns in voucher are similar
+	 All columns in supplier are similar
+	 All columns in warehouse are similar
+	 All columns in sell are similar
+	 All columns in promote are similar
