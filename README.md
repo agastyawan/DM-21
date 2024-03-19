@@ -1226,7 +1226,7 @@ FROM month_product_revenue
 
 **Graph 1** - Number of orders received from each county of United Kingdom - this graph is being made in order to understand the demand in various county's of UK
 
-![Order Based on County](images/clipboard-1535228865.png)
+![Order Based on County](https://github.com/agastyawan/DM-21/blob/3e5fa3abac5e9655794b8764f912a3c319052e1c/figure/orderwithincounty.png)
 
 ### Sales per Product
 
@@ -1234,7 +1234,7 @@ Sales per product were calculated also by using R libraries by merging the csv f
 
 **Graph 2** - Following is the graph which displays the total sales per product from year 2022.
 
-![Sales per Product](images/clipboard-1934730451.png)
+![Sales per Category](https://github.com/agastyawan/DM-21/blob/3e5fa3abac5e9655794b8764f912a3c319052e1c/figure/sales_by_category.png)
 
 ### Sales per Area
 
@@ -1246,17 +1246,17 @@ Sales per product were calculated also by using R libraries by merging the csv f
 
 **Graph 4** - Another graph is created to understand the sales per year since the year 2022
 
-![](images/clipboard-2540462925.png)
+![Sales per Area](https://github.com/agastyawan/DM-21/blob/3e5fa3abac5e9655794b8764f912a3c319052e1c/figure/sales_by_area.png)
 
 **Graph 5** - Further to understand the peak demand time period, we plot a graph for quarterly sales from the year 2022 till 2024
 
-![Sales per Year](images/clipboard-2053980944.png)
+![Sales per Year](https://github.com/agastyawan/DM-21/blob/3e5fa3abac5e9655794b8764f912a3c319052e1c/figure/sales_by_year.png)
 
 ### Distribution Sales per Month
 
 **Graph 6** - Finally, to narrow down and further find the peak months, we plotted a facet grid where the sales per month for all three years 2022,2023 and 2024 were plotted
 
-![Distribution Sales per Month](images/clipboard-3467702618.png)
+![Distribution Sales per Month](https://github.com/agastyawan/DM-21/blob/3e5fa3abac5e9655794b8764f912a3c319052e1c/figure/Sales%20per%20month.png)
 
 The above approach is based on Time Series Decomposition where we break down the time series in order to understand the trend over specific period.
 ```
