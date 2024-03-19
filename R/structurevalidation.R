@@ -9,19 +9,24 @@ writeLines("STRUCTURE DATA VALIDATION LOG", log_file)
 writeLines(print(timestamp()), log_file)
 close(log_file)
 
-checkcol <- function(tabledb, tablecsv) {
-  log_file <- file(filename, "a")
-  db_column_names <- sort(dbListFields(my_db, tabledb))
-  csv_column_names <- sort(colnames(tablecsv))
+
+#Make a function to check data structure
+checkcol <- function(name) {
+  log_file <- file("filename.txt", "a")
+  csv <- readr::read_csv(paste0("data_upload/", name, ".csv"), col_types = cols())
+  db <- DBI::dbReadTable(my_db, name)
+  db_column_names <- sort(names(db))
+  csv_column_names <- sort(names(csv))
+  
   if (identical(db_column_names, csv_column_names)) {
-    message <- paste("\t All columns in", (deparse(substitute(table))), "are similar")
+    message <- paste("\t All columns in", name , "are similar")
     writeLines(message, log_file)
-    close(log_file)
   } else {
     writeLines("\t The columns are different", log_file)
-    close(log_file)
     stop("Stopping workflow execution.")
   }
+  
+  close(log_file)
 }
 
 # Make a function to check primary key 
@@ -109,6 +114,7 @@ check_num <- function(table,col) {
 customer <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
 ad <- readr::read_csv("data_upload/ad.csv", col_types=cols()) 
 promotion <- readr::read_csv("data_upload/promotion.csv", col_types=cols()) 
+promotion <- readr::read_csv("data_upload/voucher.csv", col_types=cols())
 stock <- readr::read_csv("data_upload/stock.csv", col_types=cols()) 
 supplier <- readr::read_csv("data_upload/supplier.csv", col_types=cols()) 
 warehouse <- readr::read_csv("data_upload/warehouse.csv", col_types=cols()) 
@@ -143,7 +149,7 @@ check_email <- function(table,col){
   }
 }
 
-#checkcol('customer', customer)
+checkcol("customer")
 duprec(customer,"customer")
 check_pk(customer,"cust_id")
 check_date(customer,"cust_reg_date")
