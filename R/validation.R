@@ -8,21 +8,16 @@ my_db <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e_commerce.db")
 
 customer_db <- dbGetQuery(my_db, "SELECT * FROM customer")
 customer_push_data <- readr::read_csv("data_upload/customer.csv", col_types=cols()) 
-customer_db$cust_reg_date <- as.Date(customer_db$cust_reg_date, origin = "1970-01-01")
-customer_db$cust_birth_date <- as.Date(customer_db$cust_birth_date, origin = "1970-01-01")
 new_customer_records <- anti_join(customer_push_data, customer_db, by = "cust_id")
 write.csv(new_customer_records, file = "new_record/customer.csv", row.names = FALSE)
 
 ad_db <- dbGetQuery(my_db, "SELECT * FROM ad")
 ad_push_data <- readr::read_csv("data_upload/ad.csv", col_types=cols()) 
-ad_db$start_date <- as.Date(ad_db$start_date, origin = "1970-01-01")
-ad_db$end_date <- as.Date(ad_db$end_date, origin = "1970-01-01")
 new_ad_records <- anti_join(ad_push_data, ad_db, by = "ad_id")
 write.csv(new_ad_records, file = "new_record/ad.csv", row.names = FALSE)
 
 order_db <- dbGetQuery(my_db, "SELECT * FROM 'order'")
 order_push_data <- readr::read_csv("data_upload/order.csv", col_types=cols()) 
-order_db$order_date <- as.Date(order_db$order_date, origin = "1970-01-01")
 new_order_records <- anti_join(order_push_data, order_db, by = "order_id")
 write.csv(new_order_records, file = "new_record/order.csv", row.names = FALSE)
 
@@ -51,6 +46,11 @@ stock_db <- dbGetQuery(my_db, "SELECT * FROM stock")
 stock_push_data <- readr::read_csv("data_upload/stock.csv", col_types=cols()) 
 new_stock_records <- anti_join(stock_push_data, stock_db, by = "sku")
 write.csv(new_stock_records, file = "new_record/stock.csv", row.names = FALSE)
+
+voucher_db <- dbGetQuery(my_db, "SELECT * FROM voucher")
+voucher_push_data <- readr::read_csv("data_upload/voucher.csv", col_types=cols()) 
+new_voucher_records <- anti_join(voucher_push_data, voucher_db, by = "voucher_code")
+write.csv(new_voucher_records, file = "new_record/voucher.csv", row.names = FALSE)
 
 supplier_db <- dbGetQuery(my_db, "SELECT * FROM supplier")
 supplier_push_data <- readr::read_csv("data_upload/supplier.csv", col_types=cols()) 

@@ -19,6 +19,7 @@ order_data <- readr::read_csv("new_record/order.csv", col_types=cols(
 sell_data <- readr::read_csv("new_record/sell.csv", col_types=cols())
 supplier_data <- readr::read_csv("new_record/supplier.csv", col_types=cols()) 
 promote_data <- readr::read_csv("new_record/promote.csv", col_types=cols()) 
+voucher_data <- readr::read_csv("new_record/voucher.csv", col_types=cols()) 
 stock_data <- readr::read_csv("new_record/stock.csv", col_types=cols())
 
 my_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"database/e_commerce.db")
@@ -33,3 +34,4 @@ RSQLite::dbWriteTable(my_connection, "sell", sell_data, append = TRUE, row.names
 RSQLite::dbWriteTable(my_connection, "supplier", supplier_data, append = TRUE, row.names = FALSE)
 RSQLite::dbWriteTable(my_connection, "promote", promote_data, append = TRUE, row.names = FALSE)
 RSQLite::dbWriteTable(my_connection, "stock", stock_data, append = TRUE, row.names = FALSE)
+RSQLite::dbWriteTable(my_connection, "voucher", voucher_data, append = TRUE, row.names = FALSE)
