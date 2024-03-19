@@ -1240,17 +1240,17 @@ Sales per product were calculated also by using R libraries by merging the csv f
 
 **Graph 3** - following graph is based on further understanding of the sales per area/county to understand the customer demand
 
-![Sales per Area](images/clipboard-797573000.png)
+![Sales per Area](https://github.com/agastyawan/DM-21/blob/3e5fa3abac5e9655794b8764f912a3c319052e1c/figure/sales_by_area.png)
 
 ### Sales per Year
 
 **Graph 4** - Another graph is created to understand the sales per year since the year 2022
 
-![Sales per Area](https://github.com/agastyawan/DM-21/blob/3e5fa3abac5e9655794b8764f912a3c319052e1c/figure/sales_by_area.png)
+![Sales per Year](https://github.com/agastyawan/DM-21/blob/3e5fa3abac5e9655794b8764f912a3c319052e1c/figure/sales_by_year.png)
 
 **Graph 5** - Further to understand the peak demand time period, we plot a graph for quarterly sales from the year 2022 till 2024
 
-![Sales per Year](https://github.com/agastyawan/DM-21/blob/3e5fa3abac5e9655794b8764f912a3c319052e1c/figure/sales_by_year.png)
+![Sales per Quarter](https://github.com/agastyawan/DM-21/blob/3e5fa3abac5e9655794b8764f912a3c319052e1c/figure/Sales%20per%20Quarter.png)
 
 ### Distribution Sales per Month
 
