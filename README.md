@@ -1258,6 +1258,7 @@ Sales per product were calculated also by using R libraries by merging the csv f
 
 The above approach is based on Time Series Decomposition where we break down the time series in order to understand the trend over specific period.
 ```
+````
 
 # Conclusion
 
