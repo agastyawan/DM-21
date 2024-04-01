@@ -35,3 +35,5 @@ RSQLite::dbWriteTable(my_connection, "supplier", supplier_data, append = TRUE, r
 RSQLite::dbWriteTable(my_connection, "promote", promote_data, append = TRUE, row.names = FALSE)
 RSQLite::dbWriteTable(my_connection, "stock", stock_data, append = TRUE, row.names = FALSE)
 RSQLite::dbWriteTable(my_connection, "voucher", voucher_data, append = TRUE, row.names = FALSE)
+
+RSQLite::dbDisconnect(my_connection)
